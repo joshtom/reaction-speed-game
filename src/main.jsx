@@ -1,7 +1,7 @@
 import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment, Float, Html, PerspectiveCamera, useGLTF } from "@react-three/drei";
+import { Canvas } from "@react-three/fiber";
+import { Environment, Html, OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
 import { Box3, DoubleSide, MeshStandardMaterial, Vector3 } from "three";
 import { createRootRoute, createRoute, createRouter, RouterProvider } from "@tanstack/react-router";
 import { BookOpen, Gamepad2, Info, Medal, Play, RotateCcw, Trophy, Wifi } from "lucide-react";
@@ -98,17 +98,24 @@ function ControllerScene() {
       <pointLight position={[-3, 1.4, 2.5]} intensity={2.1} color="#39a8ff" />
       <Suspense fallback={<Html center><Gamepad2 size={50} /></Html>}>
         <Environment preset="city" />
-        <Float speed={1.25} rotationIntensity={0.1} floatIntensity={0.18}>
-          <ControllerModel />
-        </Float>
+        <ControllerModel />
       </Suspense>
+      <OrbitControls
+        makeDefault
+        enableDamping
+        dampingFactor={0.08}
+        enablePan={false}
+        enableZoom={false}
+        minPolarAngle={0.82}
+        maxPolarAngle={2.12}
+        target={[0, 0.3, 0]}
+      />
     </Canvas>
   );
 }
 
 function ControllerModel() {
-  const { scene } = useGLTF("/models/dualshock3.glb");
-  const group = useRef();
+  const { scene } = useGLTF("/models/dualshock.glb");
   const { model, modelPosition, modelScale } = useMemo(() => {
     const cloned = scene.clone(true);
     cloned.traverse((child) => {
@@ -135,12 +142,8 @@ function ControllerModel() {
     };
   }, [scene]);
 
-  useFrame(({ clock }) => {
-    if (group.current) group.current.rotation.y = Math.sin(clock.elapsedTime * 0.45) * 0.08;
-  });
-
   return (
-    <group ref={group} position={[0, 0.34, 0]} rotation={[-0.08, 0, 0]}>
+    <group position={[0, 0.34, 0]} rotation={[-0.08, 0, 0]}>
       <group>
         <primitive object={model} position={modelPosition} scale={modelScale} />
       </group>
@@ -148,7 +151,7 @@ function ControllerModel() {
   );
 }
 
-useGLTF.preload("/models/dualshock3.glb");
+useGLTF.preload("/models/dualshock.glb");
 
 function solidifyMaterial(material) {
   if (!material) {
