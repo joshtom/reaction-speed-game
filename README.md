@@ -89,7 +89,7 @@ src/
     useGamepad.ts                 Gamepad polling and connection state
     useReactionSounds.ts          Web Audio reaction cues
   components/
-    ControllerScene.tsx           3D controller, float, and button highlight
+    ControllerScene.tsx           3D controller scene and float motion
     GameUI.tsx                    HUD, stats, tables, and modal panels
   styles.css                      Theme tokens, layout, and animation polish
   animationVocabulary.ts          Shared animation class names
@@ -103,7 +103,7 @@ public/models/
 
 Browsers only expose gamepads after a user gesture. If a controller is already connected but Triggr says to press a button, click or focus the page and press any controller button once.
 
-Different controllers can label buttons differently at the OS level, but most modern controllers follow the standard face-button index mapping used here. The current 3D highlight positions are calibrated against the bundled `dualshock.glb` model.
+Different controllers can label buttons differently at the OS level, but most modern controllers follow the standard face-button index mapping used here.
 
 ## Development Notes
 

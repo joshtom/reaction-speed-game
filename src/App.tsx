@@ -419,7 +419,7 @@ export function App() {
         <div className='arena-layout'>
           <section className='play-zone'>
             <div className='canvas-wrap'>
-              <ControllerScene prompt={prompt} mode={mode} />
+              <ControllerScene />
               <PromptCardOverlay prompt={prompt} mode={mode} />
               <GameToast
                 message={message}

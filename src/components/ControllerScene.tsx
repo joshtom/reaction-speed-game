@@ -1,17 +1,11 @@
-import { Suspense, useEffect, useMemo, useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Billboard, Environment, Float, Html, OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
-import { Box3, CanvasTexture, DoubleSide, Group, LinearFilter, Material, Mesh, MeshStandardMaterial, Object3D, Vector3 } from "three";
+import { Suspense, useMemo } from "react";
+import { Canvas } from "@react-three/fiber";
+import { Environment, Float, Html, OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
+import { Box3, DoubleSide, Material, Mesh, MeshStandardMaterial, Object3D, Vector3 } from "three";
 import { Gamepad2 } from "lucide-react";
-import { COLORS, FACE_BUTTONS } from "../constants";
-import type { FaceButton, PromptDisplay, PromptMode } from "../types";
+import { COLORS } from "../constants";
 
-type ControllerSceneProps = {
-  prompt: PromptDisplay | null;
-  mode: PromptMode;
-};
-
-export function ControllerScene({ prompt, mode }: ControllerSceneProps) {
+export function ControllerScene() {
   return (
     <Canvas className="scene-canvas" shadows dpr={[1, 1.7]}>
       <PerspectiveCamera makeDefault position={[0, 1.15, 5.4]} fov={34} />
@@ -21,7 +15,7 @@ export function ControllerScene({ prompt, mode }: ControllerSceneProps) {
       <Suspense fallback={<Html center><Gamepad2 size={50} /></Html>}>
         <Environment preset="city" />
         <Float speed={1.15} rotationIntensity={0.04} floatIntensity={0.12}>
-          <ControllerModel prompt={prompt} mode={mode} />
+          <ControllerModel />
         </Float>
       </Suspense>
       <OrbitControls
@@ -38,77 +32,17 @@ export function ControllerScene({ prompt, mode }: ControllerSceneProps) {
   );
 }
 
-function ControllerModel({ prompt, mode }: ControllerSceneProps) {
+function ControllerModel() {
   const { scene } = useGLTF("/models/dualshock.glb");
   const { model, modelPosition, modelScale } = useMemo(() => normalizeModel(scene), [scene]);
-  const activeButton = mode === "live" && prompt?.id !== undefined
-    ? FACE_BUTTONS.find((button) => button.id === prompt.id) ?? null
-    : null;
 
   return (
     <group position={[0, 0.34, 0]} rotation={[-0.08, 0, 0]}>
       <group rotation={[0, Math.PI, 0]}>
         <primitive object={model} position={modelPosition} scale={modelScale} />
       </group>
-      {activeButton && <ButtonHighlight button={activeButton} />}
     </group>
   );
-}
-
-function ButtonHighlight({ button }: { button: FaceButton }) {
-  const group = useRef<Group>(null);
-  const labelTexture = useMemo(() => createButtonLabelTexture(button.symbol), [button.symbol]);
-
-  useEffect(() => {
-    return () => labelTexture.dispose();
-  }, [labelTexture]);
-
-  useFrame(({ clock }) => {
-    if (!group.current) return;
-    const pulse = 1 + Math.sin(clock.elapsedTime * 8) * 0.12;
-    group.current.scale.setScalar(pulse);
-  });
-
-  return (
-    <group ref={group} position={button.modelPosition}>
-      <Billboard>
-        <mesh renderOrder={5}>
-          <ringGeometry args={[0.11, 0.17, 48]} />
-          <meshBasicMaterial color={button.color} transparent opacity={0.95} depthTest={false} />
-        </mesh>
-        <mesh renderOrder={4}>
-          <circleGeometry args={[0.18, 48]} />
-          <meshBasicMaterial color={button.color} transparent opacity={0.22} depthTest={false} />
-        </mesh>
-        <sprite position={[0, 0, 0.02]} scale={[0.22, 0.22, 1]} renderOrder={6}>
-          <spriteMaterial map={labelTexture} transparent depthTest={false} depthWrite={false} />
-        </sprite>
-      </Billboard>
-    </group>
-  );
-}
-
-function createButtonLabelTexture(symbol: string): CanvasTexture {
-  const canvas = document.createElement("canvas");
-  const size = 160;
-  canvas.width = size;
-  canvas.height = size;
-
-  const context = canvas.getContext("2d");
-  if (!context) return new CanvasTexture(canvas);
-
-  context.clearRect(0, 0, size, size);
-  context.fillStyle = COLORS.white;
-  context.textAlign = "center";
-  context.textBaseline = "middle";
-  context.font = "900 104px Arial, Helvetica, sans-serif";
-  context.fillText(symbol, size / 2, size / 2 + 4);
-
-  const texture = new CanvasTexture(canvas);
-  texture.minFilter = LinearFilter;
-  texture.magFilter = LinearFilter;
-  texture.needsUpdate = true;
-  return texture;
 }
 
 function normalizeModel(scene: Object3D): { model: Object3D; modelPosition: [number, number, number]; modelScale: number } {
