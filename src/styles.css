@@ -262,48 +262,6 @@ button:disabled {
   transform: translateZ(22px);
 }
 
-.controller-button-glow {
-  position: absolute;
-  left: var(--button-x);
-  top: var(--button-y);
-  z-index: 2;
-  width: 64px;
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  color: #ffffff;
-  background: radial-gradient(circle, color-mix(in srgb, var(--button-color), white 24%), var(--button-color) 48%, transparent 70%);
-  box-shadow: 0 0 24px var(--button-color), 0 0 54px color-mix(in srgb, var(--button-color), transparent 25%);
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  animation: buttonTargetPulse 720ms ease-in-out infinite alternate;
-  will-change: transform, opacity;
-}
-
-.controller-button-glow::before,
-.controller-button-glow::after {
-  content: "";
-  position: absolute;
-  inset: -10px;
-  border: 2px solid var(--button-color);
-  border-radius: 50%;
-  opacity: 0.72;
-  animation: targetRipple 1.15s ease-out infinite;
-}
-
-.controller-button-glow::after {
-  animation-delay: 180ms;
-}
-
-.controller-button-glow span {
-  position: relative;
-  z-index: 1;
-  font-size: 1.55rem;
-  font-weight: 950;
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.38);
-}
-
 .round-progress-meta {
   display: flex;
   align-items: center;
@@ -759,28 +717,6 @@ th {
   }
   to {
     transform: perspective(760px) translateY(-7px) rotateX(2deg) rotateY(3deg);
-  }
-}
-
-@keyframes buttonTargetPulse {
-  from {
-    opacity: 0.82;
-    transform: translate(-50%, -50%) scale(0.94);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.08);
-  }
-}
-
-@keyframes targetRipple {
-  from {
-    opacity: 0.72;
-    transform: scale(0.78);
-  }
-  to {
-    opacity: 0;
-    transform: scale(1.42);
   }
 }
 
