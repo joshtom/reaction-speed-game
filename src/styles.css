@@ -22,8 +22,9 @@
 }
 
 body {
-  min-height: 100vh;
+  height: 100vh;
   margin: 0;
+  overflow: hidden;
   overflow-x: hidden;
   background:
     linear-gradient(transparent 31px, rgba(255, 255, 255, 0.035) 32px),
@@ -65,13 +66,13 @@ button:disabled {
 
 .app-shell {
   width: min(1440px, 100%);
-  min-height: 100vh;
+  height: 100vh;
   margin: 0 auto;
   padding: 18px;
 }
 
 .hero-panel {
-  min-height: calc(100vh - 36px);
+  height: calc(100vh - 36px);
   border: 1px solid var(--line);
   border-radius: 8px;
   background: linear-gradient(150deg, rgba(22, 27, 38, 0.95), rgba(9, 11, 16, 0.88));
@@ -80,6 +81,7 @@ button:disabled {
 }
 
 .topbar,
+.topbar-actions,
 .arena-layout,
 .command-deck,
 .section-title,
@@ -95,6 +97,19 @@ button:disabled {
   gap: 14px;
   padding: 16px 20px;
   border-bottom: 1px solid var(--line);
+}
+
+.topbar-actions {
+  gap: 10px;
+}
+
+.icon-button {
+  width: 42px;
+  min-height: 42px;
+  padding: 0;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text);
 }
 
 .brand-mark {
@@ -118,6 +133,7 @@ button:disabled {
 }
 
 .arena-layout {
+  height: calc(100% - 66px);
   align-items: stretch;
   gap: 18px;
   padding: 18px;
@@ -125,6 +141,7 @@ button:disabled {
 
 .play-zone {
   min-width: 0;
+  min-height: 0;
   flex: 1 1 auto;
   display: grid;
   grid-template-rows: minmax(500px, 1fr) auto;
@@ -140,7 +157,7 @@ button:disabled {
 
 .canvas-wrap {
   position: relative;
-  min-height: 500px;
+  min-height: 0;
   border: 1px solid var(--line);
   border-radius: 8px;
   overflow: hidden;
@@ -372,6 +389,8 @@ input[type="range"] {
   display: grid;
   gap: 12px;
   align-content: start;
+  min-height: 0;
+  overflow: auto;
 }
 
 .connect-card,
@@ -520,6 +539,41 @@ th {
   box-shadow: 0 30px 120px rgba(0, 0, 0, 0.48);
 }
 
+.rounds-modal {
+  width: min(820px, 100%);
+  max-height: min(760px, calc(100vh - 36px));
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  background: #151a24;
+  box-shadow: 0 30px 120px rgba(0, 0, 0, 0.48);
+}
+
+.modal-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rounds-modal-scroll {
+  min-height: 0;
+  overflow: auto;
+}
+
+.rounds-modal .table-card {
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.rounds-modal .table-card > .section-title {
+  display: none;
+}
+
 .instruction-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -541,18 +595,33 @@ th {
 }
 
 @media (max-width: 1100px) {
+  body {
+    height: auto;
+    min-height: 100vh;
+    overflow: auto;
+  }
+
+  .app-shell {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .hero-panel {
+    height: auto;
+    min-height: calc(100vh - 36px);
+  }
+
   .arena-layout {
+    height: auto;
     flex-direction: column;
   }
 
   .side-stack {
     width: 100%;
     min-width: 0;
+    overflow: visible;
   }
 
-  .copy-block {
-    min-height: auto;
-  }
 }
 
 @media (max-width: 720px) {

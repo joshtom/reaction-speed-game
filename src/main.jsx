@@ -4,20 +4,19 @@ import { Canvas } from "@react-three/fiber";
 import { Environment, Html, OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
 import { Box3, DoubleSide, MeshStandardMaterial, Vector3 } from "three";
 import { createRootRoute, createRoute, createRouter, RouterProvider } from "@tanstack/react-router";
-import { BookOpen, Gamepad2, Info, Medal, Play, RotateCcw, Trophy, Wifi } from "lucide-react";
+import { BookOpen, Gamepad2, Info, Medal, Play, RotateCcw, Trophy, Wifi, X } from "lucide-react";
 import { motionClassNames } from "./animationVocabulary";
 import "./styles.css";
 
 const FACE_BUTTONS = [
-  { id: 0, key: "x", name: "Bottom face", symbol: "●", alias: "A / Cross", color: "#39a8ff", pos: [0.42, -0.17, 0.64], screen: [73, 45] },
-  { id: 1, key: "o", name: "Right face", symbol: "■", alias: "B / Circle", color: "#ff646d", pos: [0.66, 0.02, 0.64], screen: [78, 38] },
-  { id: 2, key: "s", name: "Left face", symbol: "◆", alias: "X / Square", color: "#ff5fac", pos: [0.18, 0.02, 0.64], screen: [68, 38] },
-  { id: 3, key: "t", name: "Top face", symbol: "▲", alias: "Y / Triangle", color: "#36d786", pos: [0.42, 0.22, 0.64], screen: [73, 31] }
+  { id: 0, key: "x", name: "Cross", symbol: "X", alias: "Cross", color: "#39a8ff", screen: [73, 45] },
+  { id: 1, key: "o", name: "Circle", symbol: "O", alias: "Circle", color: "#ff646d", screen: [78, 38] },
+  { id: 2, key: "s", name: "Square", symbol: "□", alias: "Square", color: "#ff5fac", screen: [68, 38] },
+  { id: 3, key: "t", name: "Triangle", symbol: "△", alias: "Triangle", color: "#36d786", screen: [73, 31] }
 ];
 
 const ROUND_LIMIT = 2500;
 const HISTORY_LIMIT = 8;
-const VISIBLE_ROUNDS = 10;
 
 function ms(value) {
   return `${Math.round(value)} ms`;
@@ -56,10 +55,14 @@ function useGamepad(onFaceButton, onConnectState) {
     let frame = 0;
     let activeIndex = null;
 
+    // console.log(navigator.getGamepads)
+
     function scan() {
       const pads = navigator.getGamepads ? Array.from(navigator.getGamepads()).filter(Boolean) : [];
       const current = activeIndex === null ? null : pads.find((pad) => pad.index === activeIndex);
       const pad = current || pads[0];
+
+      // console.log({ pad })
 
       if (pad) {
         activeIndex = pad.index;
@@ -144,7 +147,7 @@ function ControllerModel() {
 
   return (
     <group position={[0, 0.34, 0]} rotation={[-0.08, 0, 0]}>
-      <group>
+      <group rotation={[0, Math.PI, 0]}>
         <primitive object={model} position={modelPosition} scale={modelScale} />
       </group>
     </group>
@@ -192,6 +195,7 @@ function App() {
   const [hits, setHits] = useState(0);
   const [misses, setMisses] = useState(0);
   const [showInstructions, setShowInstructions] = useState(false);
+  const [showRounds, setShowRounds] = useState(false);
   const stateRef = useRef({});
   const waitTimer = useRef(0);
   const reactionTimer = useRef(0);
@@ -386,9 +390,14 @@ function App() {
             <Gamepad2 size={22} />
             <span>TriggerLab</span>
           </div>
-          <div className={`connection-pill ${connection.connected ? "online" : ""}`}>
-            <Wifi size={16} />
-            <span>{connection.label}</span>
+          <div className="topbar-actions">
+            <button className="icon-button" type="button" onClick={() => setShowRounds(true)} title="View current run" aria-label="View current run">
+              <Trophy size={18} />
+            </button>
+            <div className={`connection-pill ${connection.connected ? "online" : ""}`}>
+              <Wifi size={16} />
+              <span>{connection.label}</span>
+            </div>
           </div>
         </div>
 
@@ -428,13 +437,13 @@ function App() {
           <aside className="side-stack">
             <ConnectCard connected={connection.connected} />
             <LiveStats stats={stats} hits={hits} misses={misses} streak={streak} round={`${Math.min(rounds.length, roundsPerGame)}/${roundsPerGame}`} />
-            <RoundTable rounds={rounds} />
             <GameHistory games={games} />
           </aside>
         </div>
       </section>
 
       {showInstructions && <InstructionPanel onClose={() => setShowInstructions(false)} />}
+      {showRounds && <RoundTableModal rounds={rounds} onClose={() => setShowRounds(false)} />}
     </main>
   );
 }
@@ -500,7 +509,7 @@ function ConnectCard({ connected }) {
         <Info size={17} />
         <span>Controller setup</span>
       </div>
-      <p>{connected ? "Controller detected. Use the bottom, right, left, and top face buttons when they light up." : "Plug in USB or pair Bluetooth, then press any face button so the browser can detect the gamepad."}</p>
+      <p>{connected ? "Controller detected. Match Cross, Circle, Square, and Triangle when they light up." : "Plug in USB or pair Bluetooth, then press any face button so the browser can detect the gamepad."}</p>
     </section>
   );
 }
@@ -551,7 +560,7 @@ function RoundTable({ rounds }) {
               <td colSpan="5" className="empty-cell">No rounds yet.</td>
             </tr>
           )}
-          {rounds.slice(0, VISIBLE_ROUNDS).map((round) => (
+          {rounds.map((round) => (
             <tr key={round.number}>
               <td>{round.number}</td>
               <td>{round.prompt}</td>
@@ -563,6 +572,27 @@ function RoundTable({ rounds }) {
         </tbody>
       </table>
     </section>
+  );
+}
+
+function RoundTableModal({ rounds, onClose }) {
+  return (
+    <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Current run">
+      <section className={`rounds-modal ${motionClassNames.popIn}`}>
+        <div className="modal-heading">
+          <div className="section-title">
+            <Trophy size={18} />
+            <span>Current run</span>
+          </div>
+          <button className="icon-button" type="button" onClick={onClose} title="Close current run" aria-label="Close current run">
+            <X size={18} />
+          </button>
+        </div>
+        <div className="rounds-modal-scroll">
+          <RoundTable rounds={rounds} />
+        </div>
+      </section>
+    </div>
   );
 }
 
@@ -636,7 +666,7 @@ function InstructionPanel({ onClose }) {
           </div>
           <div>
             <strong>2. React</strong>
-            <p>A random face-button position appears after 0.8-2.6s. Press the matching controller button.</p>
+            <p>A random face button appears after 0.8-2.6s. Press the matching Cross, Circle, Square, or Triangle button.</p>
           </div>
           <div>
             <strong>3. Score</strong>
@@ -644,7 +674,7 @@ function InstructionPanel({ onClose }) {
           </div>
           <div>
             <strong>Keyboard fallback</strong>
-            <p>Use X for bottom, O for right, S for left, and T for top while testing without a controller.</p>
+            <p>Use X for Cross, O for Circle, S for Square, and T for Triangle while testing without a controller.</p>
           </div>
         </div>
         <button className="primary" onClick={onClose}>Back to arena</button>
