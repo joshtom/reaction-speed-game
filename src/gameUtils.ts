@@ -1,4 +1,5 @@
 import { FACE_BUTTONS } from "./constants";
+import { CopyText, emptyGrade, streakRemarkText } from "./copy";
 import type { FaceButton, ReactionGrade } from "./types";
 
 export function ms(value: number): string {
@@ -6,10 +7,10 @@ export function ms(value: number): string {
 }
 
 export function gradeReaction(value: number | null): ReactionGrade {
-  if (value === null) return "--";
-  if (value < 220) return "Fast";
-  if (value < 400) return "Good";
-  return "Slow";
+  if (value === null) return emptyGrade;
+  if (value < 220) return CopyText.Fast;
+  if (value < 400) return CopyText.Good;
+  return CopyText.Slow;
 }
 
 export function nextDelay(): number {
@@ -17,10 +18,7 @@ export function nextDelay(): number {
 }
 
 export function streakRemark(streak: number): string {
-  if (streak >= 8) return `${streak} streak. Reflex legend territory.`;
-  if (streak >= 5) return `${streak} streak. You are reading the future.`;
-  if (streak >= 3) return `${streak} streak. Stay locked.`;
-  return "";
+  return streakRemarkText(streak);
 }
 
 export function getRandomPrompt(previous: FaceButton | null): FaceButton {

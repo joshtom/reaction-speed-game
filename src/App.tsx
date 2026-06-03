@@ -3,6 +3,7 @@ import { BookOpen, Gamepad2, Moon, Play, RotateCcw, Sun, Trophy, Volume2, Volume
 import { ControllerScene } from "./components/ControllerScene";
 import { ConnectCard, GameHistory, GameToast, InstructionPanel, LiveStats, PromptCardOverlay, RoundProgressTracker, RoundTableModal } from "./components/GameUI";
 import { COLORS, FACE_BUTTONS, HISTORY_LIMIT, ROUND_LIMIT } from "./constants";
+import { CopyText, correctButton, emptyGrade, falseStart, gameComplete, missedButton, promptHit, timeout, wrongButton } from "./copy";
 import { getRandomPrompt, gradeReaction, ms, nextDelay, streakRemark } from "./gameUtils";
 import { useGamepad } from "./hooks/useGamepad";
 import { useReactionSounds } from "./hooks/useReactionSounds";
@@ -12,8 +13,8 @@ const THEME_STORAGE_KEY = "triggr-theme";
 const LEGACY_THEME_STORAGE_KEY = "triggerlab-theme";
 
 function soundCueForGrade(grade: ReactionGrade): SoundCue {
-  if (grade === "Fast") return "fast";
-  if (grade === "Good") return "good";
+  if (grade === CopyText.Fast) return "fast";
+  if (grade === CopyText.Good) return "good";
   return "slow";
 }
 
@@ -23,7 +24,7 @@ export function App() {
     if (saved === "dark" || saved === "light") return saved;
     return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
   });
-  const [connection, setConnection] = useState<ConnectionState>({ connected: false, label: "Press any controller button" });
+  const [connection, setConnection] = useState<ConnectionState>({ connected: false, label: CopyText.PressAnyControllerButton });
   const [status, setStatus] = useState<GameStatus>("welcome");
   const [roundsPerGame, setRoundsPerGame] = useState(10);
   const [prompt, setPrompt] = useState<PromptDisplay | null>(null);
@@ -63,7 +64,7 @@ export function App() {
     setStatus("waiting");
     setPrompt(null);
     setMode("idle");
-    setMessage("Stand by. The next button can light up any moment.");
+    setMessage(CopyText.StandBy);
     setCelebration("");
     waitTimer.current = setTimeout(() => {
       const previous = stateRef.current.prompt?.id !== undefined ? FACE_BUTTONS.find((button) => button.id === stateRef.current.prompt?.id) ?? null : null;
@@ -72,7 +73,7 @@ export function App() {
       setPrompt(current);
       setMode("live");
       setStatus("prompt");
-      setMessage(`Hit ${current.name}.`);
+      setMessage(promptHit(current));
       sounds.play("prompt");
       reactionTimer.current = setTimeout(() => recordTimeout(current), ROUND_LIMIT);
     }, nextDelay());
@@ -86,7 +87,7 @@ export function App() {
     setMisses(0);
     setStreak(0);
     setCelebration("");
-    setMessage("Round 1 incoming.");
+    setMessage(CopyText.RoundOneIncoming);
     schedulePrompt();
   }
 
@@ -121,7 +122,7 @@ export function App() {
     clearTimers();
     setStatus("complete");
     setMode("complete");
-    setPrompt({ name: "Complete", symbol: "✓", color: COLORS.success });
+    setPrompt({ name: CopyText.Complete, symbol: "✓", color: COLORS.success });
     sounds.play("complete");
     const times = finalRounds.filter((round) => round.correct).map((round) => round.time).filter((time): time is number => time !== null);
     const game: GameSummary = {
@@ -134,8 +135,8 @@ export function App() {
       createdAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     };
     setGames((current) => [game, ...current].slice(0, HISTORY_LIMIT));
-    setMessage(`Game complete: ${finalHits} hits, ${finalMisses} misses.`);
-    setCelebration(finalStreak >= 3 ? streakRemark(finalStreak) : "Run complete. Tune the round count or play again.");
+    setMessage(gameComplete(finalHits, finalMisses));
+    setCelebration(finalStreak >= 3 ? streakRemark(finalStreak) : CopyText.RunComplete);
   }
 
   function recordFalseStart(button: FaceButton): void {
@@ -145,11 +146,11 @@ export function App() {
     setMisses(nextMisses);
     setStreak(0);
     setMode("warning");
-    setPrompt({ name: "Too soon", symbol: "!", color: COLORS.warning });
+    setPrompt({ name: CopyText.TooSoon, symbol: "!", color: COLORS.warning });
     sounds.play("miss");
-    setMessage(`False start: ${button.name} before the prompt.`);
+    setMessage(falseStart(button));
     setCelebration("");
-    const nextRounds = appendRound({ prompt: "Too soon", result: `Miss: ${button.name}`, correct: false, time: null, grade: "--" });
+    const nextRounds = appendRound({ prompt: CopyText.FalseStartPrompt, result: missedButton(button), correct: false, time: null, grade: emptyGrade });
     advance(nextRounds, stateRef.current.hits, nextMisses, 0);
   }
 
@@ -171,7 +172,7 @@ export function App() {
     setMisses(nextMisses);
     setStreak(nextStreak);
     setMode(correct ? "hit" : "miss");
-    setMessage(correct ? `${current.prompt.name} hit in ${ms(elapsed)} (${gradeReaction(elapsed)}).` : `Wrong button: ${button.name} instead of ${current.prompt.name}.`);
+    setMessage(correct ? correctButton(current.prompt.name, ms(elapsed), gradeReaction(elapsed)) : wrongButton(button, current.prompt.name));
     setCelebration(correct ? streakRemark(nextStreak) : "");
     if (!correct) {
       sounds.play("miss");
@@ -180,7 +181,7 @@ export function App() {
     } else {
       sounds.play(soundCueForGrade(gradeReaction(elapsed)));
     }
-    const nextRounds = appendRound({ prompt: current.prompt.name, result: correct ? "Hit" : `Miss: ${button.name}`, correct, time: correct ? elapsed : null, grade: correct ? gradeReaction(elapsed) : "--" });
+    const nextRounds = appendRound({ prompt: current.prompt.name, result: correct ? CopyText.Hit : missedButton(button), correct, time: correct ? elapsed : null, grade: correct ? gradeReaction(elapsed) : emptyGrade });
     advance(nextRounds, nextHits, nextMisses, nextStreak);
   }
 
@@ -193,9 +194,9 @@ export function App() {
     setStreak(0);
     setMode("timeout");
     sounds.play("miss");
-    setMessage(`Timeout: ${expiredPrompt.name} was missed.`);
+    setMessage(timeout(expiredPrompt.name));
     setCelebration("");
-    const nextRounds = appendRound({ prompt: expiredPrompt.name, result: "Timeout", correct: false, time: null, grade: "--" });
+    const nextRounds = appendRound({ prompt: expiredPrompt.name, result: CopyText.Timeout, correct: false, time: null, grade: emptyGrade });
     advance(nextRounds, current.hits, nextMisses, 0);
   }
 
@@ -221,15 +222,15 @@ export function App() {
     <main className="app-shell">
       <section className="hero-panel">
         <div className="topbar">
-          <div className="brand-mark"><Gamepad2 size={22} /><span>Triggr</span></div>
+          <div className="brand-mark"><Gamepad2 size={22} /><span>{CopyText.AppName}</span></div>
           <div className="topbar-actions">
-            <button className="icon-button" type="button" onClick={sounds.toggle} title={sounds.enabled ? "Mute reaction sounds" : "Enable reaction sounds"} aria-label={sounds.enabled ? "Mute reaction sounds" : "Enable reaction sounds"}>
+            <button className="icon-button" type="button" onClick={sounds.toggle} title={sounds.enabled ? CopyText.MuteReactionSounds : CopyText.EnableReactionSounds} aria-label={sounds.enabled ? CopyText.MuteReactionSounds : CopyText.EnableReactionSounds}>
               {sounds.enabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
             </button>
-            <button className="icon-button" type="button" onClick={() => setTheme((current) => current === "dark" ? "light" : "dark")} title={`Use ${theme === "dark" ? "light" : "dark"} mode`} aria-label={`Use ${theme === "dark" ? "light" : "dark"} mode`}>
+            <button className="icon-button" type="button" onClick={() => setTheme((current) => current === "dark" ? "light" : "dark")} title={theme === "dark" ? CopyText.UseLightMode : CopyText.UseDarkMode} aria-label={theme === "dark" ? CopyText.UseLightMode : CopyText.UseDarkMode}>
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-            <button className="icon-button" type="button" onClick={() => setShowRounds(true)} title="View current run" aria-label="View current run"><Trophy size={18} /></button>
+            <button className="icon-button" type="button" onClick={() => setShowRounds(true)} title={CopyText.ViewCurrentRun} aria-label={CopyText.ViewCurrentRun}><Trophy size={18} /></button>
             <div className={`connection-pill ${connection.connected ? "online" : ""}`}><Wifi size={16} /><span>{connection.label}</span></div>
           </div>
         </div>
@@ -244,13 +245,13 @@ export function App() {
             <div className="command-deck">
               {(status === "welcome" || status === "complete") && (
                 <label className="round-control">
-                  <span>Rounds per game</span><strong>{roundsPerGame}</strong>
+                  <span>{CopyText.RoundsPerGame}</span><strong>{roundsPerGame}</strong>
                   <input type="range" min="5" max="20" value={roundsPerGame} onChange={(event) => setRoundsPerGame(Number(event.target.value))} />
                 </label>
               )}
-              <button className="primary" onClick={startGame} disabled={status === "waiting" || status === "prompt"}><Play size={18} />{status === "complete" ? "Play again" : "Start game"}</button>
-              <button className="secondary" onClick={resetGame}><RotateCcw size={18} />Reset</button>
-              <button className="secondary icon-text" onClick={() => setShowInstructions(true)}><BookOpen size={18} />Instructions</button>
+              <button className="primary" onClick={startGame} disabled={status === "waiting" || status === "prompt"}><Play size={18} />{status === "complete" ? CopyText.PlayAgain : CopyText.StartGame}</button>
+              <button className="secondary" onClick={resetGame}><RotateCcw size={18} />{CopyText.Reset}</button>
+              <button className="secondary icon-text" onClick={() => setShowInstructions(true)}><BookOpen size={18} />{CopyText.Instructions}</button>
             </div>
           </section>
           <aside className="side-stack">

@@ -1,4 +1,5 @@
 import type { FaceButton } from "./types";
+import { CopyText } from "./copy";
 
 export const COLORS = {
   cross: "#39a8ff",
@@ -12,10 +13,10 @@ export const COLORS = {
 } as const;
 
 export const FACE_BUTTONS: FaceButton[] = [
-  { id: 0, key: "x", name: "Cross", symbol: "X", alias: "Cross", color: COLORS.cross, modelPosition: [0.88, 0.08, 0.42] },
-  { id: 1, key: "o", name: "Circle", symbol: "O", alias: "Circle", color: COLORS.circle, modelPosition: [1.04, 0.24, 0.42] },
-  { id: 2, key: "s", name: "Square", symbol: "□", alias: "Square", color: COLORS.square, modelPosition: [0.72, 0.24, 0.42] },
-  { id: 3, key: "t", name: "Triangle", symbol: "△", alias: "Triangle", color: COLORS.triangle, modelPosition: [0.88, 0.4, 0.42] }
+  { id: 0, key: "x", name: CopyText.Cross, symbol: "X", alias: CopyText.Cross, color: COLORS.cross, modelPosition: [0.88, 0.08, 0.42] },
+  { id: 1, key: "o", name: CopyText.Circle, symbol: "O", alias: CopyText.Circle, color: COLORS.circle, modelPosition: [1.04, 0.24, 0.42] },
+  { id: 2, key: "s", name: CopyText.Square, symbol: "□", alias: CopyText.Square, color: COLORS.square, modelPosition: [0.72, 0.24, 0.42] },
+  { id: 3, key: "t", name: CopyText.Triangle, symbol: "△", alias: CopyText.Triangle, color: COLORS.triangle, modelPosition: [0.88, 0.4, 0.42] }
 ];
 
 export const ROUND_LIMIT = 2500;

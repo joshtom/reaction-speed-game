@@ -1,6 +1,7 @@
 import { useMemo, type CSSProperties } from "react";
 import { BookOpen, Info, Medal, Trophy, X } from "lucide-react";
 import { motionClassNames } from "../animationVocabulary";
+import { CopyText, emptyValue } from "../copy";
 import { ms } from "../gameUtils";
 import type { GameStatus, GameSummary, LiveStatsValue, PromptDisplay, PromptMode, RoundRecord } from "../types";
 
@@ -34,9 +35,9 @@ export function RoundProgressTracker({ roundsPlayed, roundsPerGame }: { roundsPl
   const style: CustomStyle = { "--round-count": roundsPerGame };
 
   return (
-    <div className="round-progress-tracker" aria-label={`Round progress ${completed} of ${roundsPerGame}`}>
+    <div className="round-progress-tracker" aria-label={`${CopyText.Round} progress ${completed} of ${roundsPerGame}`}>
       <div className="round-progress-meta">
-        <span>Round progress</span>
+        <span>{CopyText.Round} progress</span>
         <strong>{completed}/{roundsPerGame}</strong>
       </div>
       <div className="round-segments" style={style}>
@@ -53,22 +54,22 @@ export function ConnectCard({ connected }: { connected: boolean }) {
     <section className={`connect-card ${motionClassNames.scaleIn}`}>
       <div className="section-title">
         <Info size={17} />
-        <span>Controller setup</span>
+        <span>{CopyText.ControllerSetup}</span>
       </div>
-      <p>{connected ? "Controller detected. Match Cross, Circle, Square, and Triangle when they light up." : "Connect by USB or Bluetooth, focus this page, then press any controller button once. Browsers only expose gamepads after input."}</p>
+      <p>{connected ? CopyText.ControllerDetected : CopyText.ControllerConnectHelp}</p>
     </section>
   );
 }
 
 export function LiveStats({ stats, hits, misses, streak, round }: { stats: LiveStatsValue; hits: number; misses: number; streak: number; round: string }) {
   const items: Array<[string, string | number]> = [
-    ["Last", stats.last ? ms(stats.last) : "--"],
-    ["Average", stats.avg ? ms(stats.avg) : "--"],
-    ["Best", stats.best ? ms(stats.best) : "--"],
-    ["Streak", streak],
-    ["Hits", hits],
-    ["Misses", misses],
-    ["Round", round]
+    [CopyText.Last, stats.last ? ms(stats.last) : emptyValue],
+    [CopyText.Average, stats.avg ? ms(stats.avg) : emptyValue],
+    [CopyText.Best, stats.best ? ms(stats.best) : emptyValue],
+    [CopyText.Streak, streak],
+    [CopyText.Hits, hits],
+    [CopyText.Misses, misses],
+    [CopyText.Round, round]
   ];
 
   return (
@@ -105,21 +106,21 @@ export function GameHistory({ games }: { games: GameSummary[] }) {
     <section className={`table-card ${motionClassNames.reveal}`}>
       <div className="section-title">
         <Medal size={17} />
-        <span>Last 8 games</span>
+        <span>{CopyText.LastGames}</span>
       </div>
       <table>
         <thead>
-          <tr><th>Rank</th><th>Avg</th><th>Best</th><th>Miss</th><th>Rounds</th></tr>
+          <tr><th>{CopyText.Rank}</th><th>{CopyText.Avg}</th><th>{CopyText.Best}</th><th>{CopyText.Miss}</th><th>{CopyText.Rounds}</th></tr>
         </thead>
         <tbody>
-          {!games.length && <tr><td colSpan={5} className="empty-cell">Finish a game to rank it.</td></tr>}
+          {!games.length && <tr><td colSpan={5} className="empty-cell">{CopyText.FinishGameToRank}</td></tr>}
           {games.map((game) => {
             const rank = ranked.indexOf(game.id);
             return (
               <tr key={game.id}>
-                <td>{rank >= 0 ? <span className={`medal-dot ${medalClass[rank]}`}>{rank + 1}</span> : "--"}</td>
-                <td>{game.avg === null ? "--" : ms(game.avg)}</td>
-                <td>{game.best === null ? "--" : ms(game.best)}</td>
+                <td>{rank >= 0 ? <span className={`medal-dot ${medalClass[rank]}`}>{rank + 1}</span> : emptyValue}</td>
+                <td>{game.avg === null ? emptyValue : ms(game.avg)}</td>
+                <td>{game.best === null ? emptyValue : ms(game.best)}</td>
                 <td>{game.misses}</td>
                 <td>{game.rounds}</td>
               </tr>
@@ -134,19 +135,19 @@ export function GameHistory({ games }: { games: GameSummary[] }) {
 function RoundTable({ rounds }: { rounds: RoundRecord[] }) {
   return (
     <section className={`table-card ${motionClassNames.reveal}`}>
-      <div className="section-title"><Trophy size={17} /><span>Current run</span></div>
+      <div className="section-title"><Trophy size={17} /><span>{CopyText.CurrentRun}</span></div>
       <table>
         <thead>
-          <tr><th>#</th><th>Prompt</th><th>Result</th><th>Time</th><th>Grade</th></tr>
+          <tr><th>#</th><th>{CopyText.Prompt}</th><th>{CopyText.Result}</th><th>{CopyText.Time}</th><th>{CopyText.Grade}</th></tr>
         </thead>
         <tbody>
-          {!rounds.length && <tr><td colSpan={5} className="empty-cell">No rounds yet.</td></tr>}
+          {!rounds.length && <tr><td colSpan={5} className="empty-cell">{CopyText.NoRoundsYet}</td></tr>}
           {rounds.map((round) => (
             <tr key={round.number}>
               <td>{round.number}</td>
               <td>{round.prompt}</td>
               <td className={round.correct ? "good" : "bad"}>{round.result}</td>
-              <td>{round.time === null ? "--" : ms(round.time)}</td>
+              <td>{round.time === null ? emptyValue : ms(round.time)}</td>
               <td className={`grade ${round.grade.toLowerCase()}`}>{round.grade}</td>
             </tr>
           ))}
@@ -158,11 +159,11 @@ function RoundTable({ rounds }: { rounds: RoundRecord[] }) {
 
 export function RoundTableModal({ rounds, onClose }: { rounds: RoundRecord[]; onClose: () => void }) {
   return (
-    <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Current run">
+    <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label={CopyText.CurrentRun}>
       <section className={`rounds-modal ${motionClassNames.popIn}`}>
         <div className="modal-heading">
-          <div className="section-title"><Trophy size={18} /><span>Current run</span></div>
-          <button className="icon-button" type="button" onClick={onClose} title="Close current run" aria-label="Close current run"><X size={18} /></button>
+          <div className="section-title"><Trophy size={18} /><span>{CopyText.CurrentRun}</span></div>
+          <button className="icon-button" type="button" onClick={onClose} title={CopyText.CloseCurrentRun} aria-label={CopyText.CloseCurrentRun}><X size={18} /></button>
         </div>
         <div className="rounds-modal-scroll"><RoundTable rounds={rounds} /></div>
       </section>
@@ -172,16 +173,16 @@ export function RoundTableModal({ rounds, onClose }: { rounds: RoundRecord[]; on
 
 export function InstructionPanel({ onClose }: { onClose: () => void }) {
   return (
-    <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Instructions">
+    <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label={CopyText.Instructions}>
       <section className={`instruction-panel ${motionClassNames.popIn}`}>
-        <div className="section-title"><BookOpen size={18} /><span>How to play</span></div>
+        <div className="section-title"><BookOpen size={18} /><span>{CopyText.HowToPlay}</span></div>
         <div className="instruction-grid">
-          <div><strong>1. Connect</strong><p>Use USB or Bluetooth. Browser Gamepad API activates after one controller button press.</p></div>
-          <div><strong>2. React</strong><p>A random face button appears after 0.8-2.6s. Press the matching Cross, Circle, Square, or Triangle button.</p></div>
-          <div><strong>3. Score</strong><p>Under 220ms is Fast, under 400ms is Good, and slower hits are Slow. Wrong buttons and 2.5s timeouts count as misses.</p></div>
-          <div><strong>Keyboard fallback</strong><p>Use X for Cross, O for Circle, S for Square, and T for Triangle while testing without a controller.</p></div>
+          <div><strong>{CopyText.InstructionConnectTitle}</strong><p>{CopyText.InstructionConnectBody}</p></div>
+          <div><strong>{CopyText.InstructionReactTitle}</strong><p>{CopyText.InstructionReactBody}</p></div>
+          <div><strong>{CopyText.InstructionScoreTitle}</strong><p>{CopyText.InstructionScoreBody}</p></div>
+          <div><strong>{CopyText.InstructionKeyboardTitle}</strong><p>{CopyText.InstructionKeyboardBody}</p></div>
         </div>
-        <button className="primary" onClick={onClose}>Back to arena</button>
+        <button className="primary" onClick={onClose}>{CopyText.BackToArena}</button>
       </section>
     </div>
   );

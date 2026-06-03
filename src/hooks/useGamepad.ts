@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { FACE_BUTTONS } from "../constants";
+import { CopyText } from "../copy";
 import type { ConnectionState, FaceButton, FaceButtonId } from "../types";
 
 type FaceButtonHandler = (button: FaceButton) => void;
@@ -30,7 +31,7 @@ export function useGamepad(onFaceButton: FaceButtonHandler, onConnectState: Conn
 
     function readGamepads(): void {
       if (!navigator.getGamepads) {
-        publishConnection(false, "Gamepad API unavailable");
+        publishConnection(false, CopyText.GamepadApiUnavailable);
         return;
       }
 
@@ -41,11 +42,11 @@ export function useGamepad(onFaceButton: FaceButtonHandler, onConnectState: Conn
       if (pad) {
         if (activeIndex !== pad.index) previousButtons.current.clear();
         activeIndex = pad.index;
-        publishConnection(true, pad.id || "Controller connected");
+        publishConnection(true, pad.id || CopyText.ControllerConnected);
       } else {
         activeIndex = null;
         previousButtons.current.clear();
-        publishConnection(false, "Press any controller button");
+        publishConnection(false, CopyText.PressAnyControllerButton);
       }
 
       if (!pad) return;
@@ -66,7 +67,7 @@ export function useGamepad(onFaceButton: FaceButtonHandler, onConnectState: Conn
     function handleConnected(event: GamepadEvent): void {
       activeIndex = event.gamepad.index;
       previousButtons.current.clear();
-      publishConnection(true, event.gamepad.id || "Controller connected");
+      publishConnection(true, event.gamepad.id || CopyText.ControllerConnected);
       readGamepads();
     }
 
