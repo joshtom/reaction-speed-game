@@ -2,6 +2,8 @@
 
 Triggr is a controller-first reaction speed game built with TanStack React, React Three Fiber, and the browser Gamepad API. A random face-button prompt appears after a variable delay, the player hits the matching controller button, and the app tracks reaction speed, misses, streaks, and recent game summaries.
 
+![Triggr app screenshot](public/images/app-ss.png)
+
 ## Features
 
 - 3D controller scene using `public/models/dualshock.glb`
