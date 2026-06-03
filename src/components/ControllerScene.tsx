@@ -3,7 +3,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Billboard, Environment, Float, Html, OrbitControls, PerspectiveCamera, Text, useGLTF } from "@react-three/drei";
 import { Box3, DoubleSide, Group, Material, Mesh, MeshStandardMaterial, Object3D, Vector3 } from "three";
 import { Gamepad2 } from "lucide-react";
-import { FACE_BUTTONS } from "../constants";
+import { COLORS, FACE_BUTTONS } from "../constants";
 import type { FaceButton, PromptDisplay, PromptMode } from "../types";
 
 type ControllerSceneProps = {
@@ -17,7 +17,7 @@ export function ControllerScene({ prompt, mode }: ControllerSceneProps) {
       <PerspectiveCamera makeDefault position={[0, 1.15, 5.4]} fov={34} />
       <ambientLight intensity={0.72} />
       <spotLight position={[2.8, 4.8, 4.8]} angle={0.48} penumbra={0.55} intensity={5.8} castShadow />
-      <pointLight position={[-3, 1.4, 2.5]} intensity={2.1} color="#39a8ff" />
+      <pointLight position={[-3, 1.4, 2.5]} intensity={2.1} color={COLORS.cross} />
       <Suspense fallback={<Html center><Gamepad2 size={50} /></Html>}>
         <Environment preset="city" />
         <Float speed={1.15} rotationIntensity={0.04} floatIntensity={0.12}>
@@ -75,7 +75,7 @@ function ButtonHighlight({ button }: { button: FaceButton }) {
           <circleGeometry args={[0.18, 48]} />
           <meshBasicMaterial color={button.color} transparent opacity={0.22} depthTest={false} />
         </mesh>
-        <Text position={[0, 0, 0.01]} fontSize={0.105} color="#ffffff" anchorX="center" anchorY="middle" renderOrder={6}>
+        <Text position={[0, 0, 0.01]} fontSize={0.105} color={COLORS.white} anchorX="center" anchorY="middle" renderOrder={6}>
           {button.symbol}
         </Text>
       </Billboard>
@@ -111,7 +111,7 @@ function normalizeModel(scene: Object3D): { model: Object3D; modelPosition: [num
 
 function solidifyMaterial(material: Material | undefined): Material {
   if (!material) {
-    return new MeshStandardMaterial({ color: "#f2f4f8", roughness: 0.58, metalness: 0.12, side: DoubleSide });
+    return new MeshStandardMaterial({ color: COLORS.modelFallback, roughness: 0.58, metalness: 0.12, side: DoubleSide });
   }
 
   const clone = material.clone();

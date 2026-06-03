@@ -1,13 +1,25 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { BookOpen, Gamepad2, Play, RotateCcw, Trophy, Wifi } from "lucide-react";
+import { BookOpen, Gamepad2, Moon, Play, RotateCcw, Sun, Trophy, Volume2, VolumeX, Wifi } from "lucide-react";
 import { ControllerScene } from "./components/ControllerScene";
 import { ConnectCard, GameHistory, GameToast, InstructionPanel, LiveStats, PromptCardOverlay, RoundProgressTracker, RoundTableModal } from "./components/GameUI";
-import { FACE_BUTTONS, HISTORY_LIMIT, ROUND_LIMIT } from "./constants";
+import { COLORS, FACE_BUTTONS, HISTORY_LIMIT, ROUND_LIMIT } from "./constants";
 import { getRandomPrompt, gradeReaction, ms, nextDelay, streakRemark } from "./gameUtils";
 import { useGamepad } from "./hooks/useGamepad";
-import type { ConnectionState, FaceButton, GameStateSnapshot, GameStatus, GameSummary, PromptDisplay, PromptMode, RoundRecord } from "./types";
+import { useReactionSounds } from "./hooks/useReactionSounds";
+import type { ConnectionState, FaceButton, GameStateSnapshot, GameStatus, GameSummary, PromptDisplay, PromptMode, ReactionGrade, RoundRecord, SoundCue, Theme } from "./types";
+
+function soundCueForGrade(grade: ReactionGrade): SoundCue {
+  if (grade === "Fast") return "fast";
+  if (grade === "Good") return "good";
+  return "slow";
+}
 
 export function App() {
+  const [theme, setTheme] = useState<Theme>(() => {
+    const saved = localStorage.getItem("triggerlab-theme");
+    if (saved === "dark" || saved === "light") return saved;
+    return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  });
   const [connection, setConnection] = useState<ConnectionState>({ connected: false, label: "Press any controller button" });
   const [status, setStatus] = useState<GameStatus>("welcome");
   const [roundsPerGame, setRoundsPerGame] = useState(10);
@@ -27,6 +39,7 @@ export function App() {
   const reactionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const promptStartedAt = useRef(0);
+  const sounds = useReactionSounds();
 
   stateRef.current = { status, prompt, rounds, roundsPerGame, streak, hits, misses };
 
@@ -57,11 +70,13 @@ export function App() {
       setMode("live");
       setStatus("prompt");
       setMessage(`Hit ${current.name}.`);
+      sounds.play("prompt");
       reactionTimer.current = setTimeout(() => recordTimeout(current), ROUND_LIMIT);
     }, nextDelay());
   }
 
   function startGame(): void {
+    if (sounds.enabled) sounds.unlock();
     clearTimers();
     setRounds([]);
     setHits(0);
@@ -103,7 +118,8 @@ export function App() {
     clearTimers();
     setStatus("complete");
     setMode("complete");
-    setPrompt({ name: "Complete", symbol: "✓", color: "#31d17b" });
+    setPrompt({ name: "Complete", symbol: "✓", color: COLORS.success });
+    sounds.play("complete");
     const times = finalRounds.filter((round) => round.correct).map((round) => round.time).filter((time): time is number => time !== null);
     const game: GameSummary = {
       id: crypto.randomUUID(),
@@ -126,7 +142,8 @@ export function App() {
     setMisses(nextMisses);
     setStreak(0);
     setMode("warning");
-    setPrompt({ name: "Too soon", symbol: "!", color: "#ffd166" });
+    setPrompt({ name: "Too soon", symbol: "!", color: COLORS.warning });
+    sounds.play("miss");
     setMessage(`False start: ${button.name} before the prompt.`);
     setCelebration("");
     const nextRounds = appendRound({ prompt: "Too soon", result: `Miss: ${button.name}`, correct: false, time: null, grade: "--" });
@@ -153,6 +170,13 @@ export function App() {
     setMode(correct ? "hit" : "miss");
     setMessage(correct ? `${current.prompt.name} hit in ${ms(elapsed)} (${gradeReaction(elapsed)}).` : `Wrong button: ${button.name} instead of ${current.prompt.name}.`);
     setCelebration(correct ? streakRemark(nextStreak) : "");
+    if (!correct) {
+      sounds.play("miss");
+    } else if (nextStreak >= 3) {
+      sounds.play("streak");
+    } else {
+      sounds.play(soundCueForGrade(gradeReaction(elapsed)));
+    }
     const nextRounds = appendRound({ prompt: current.prompt.name, result: correct ? "Hit" : `Miss: ${button.name}`, correct, time: correct ? elapsed : null, grade: correct ? gradeReaction(elapsed) : "--" });
     advance(nextRounds, nextHits, nextMisses, nextStreak);
   }
@@ -165,6 +189,7 @@ export function App() {
     setMisses(nextMisses);
     setStreak(0);
     setMode("timeout");
+    sounds.play("miss");
     setMessage(`Timeout: ${expiredPrompt.name} was missed.`);
     setCelebration("");
     const nextRounds = appendRound({ prompt: expiredPrompt.name, result: "Timeout", correct: false, time: null, grade: "--" });
@@ -172,6 +197,11 @@ export function App() {
   }
 
   useGamepad(recordButton, setConnection);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem("triggerlab-theme", theme);
+  }, [theme]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent): void {
@@ -189,6 +219,12 @@ export function App() {
         <div className="topbar">
           <div className="brand-mark"><Gamepad2 size={22} /><span>TriggerLab</span></div>
           <div className="topbar-actions">
+            <button className="icon-button" type="button" onClick={sounds.toggle} title={sounds.enabled ? "Mute reaction sounds" : "Enable reaction sounds"} aria-label={sounds.enabled ? "Mute reaction sounds" : "Enable reaction sounds"}>
+              {sounds.enabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+            </button>
+            <button className="icon-button" type="button" onClick={() => setTheme((current) => current === "dark" ? "light" : "dark")} title={`Use ${theme === "dark" ? "light" : "dark"} mode`} aria-label={`Use ${theme === "dark" ? "light" : "dark"} mode`}>
+              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
             <button className="icon-button" type="button" onClick={() => setShowRounds(true)} title="View current run" aria-label="View current run"><Trophy size={18} /></button>
             <div className={`connection-pill ${connection.connected ? "online" : ""}`}><Wifi size={16} /><span>{connection.label}</span></div>
           </div>

@@ -13,6 +13,8 @@ export type FaceButton = {
 export type GameStatus = "welcome" | "waiting" | "prompt" | "complete";
 export type PromptMode = "idle" | "live" | "hit" | "miss" | "warning" | "timeout" | "complete";
 export type ReactionGrade = "Fast" | "Good" | "Slow" | "--";
+export type Theme = "dark" | "light";
+export type SoundCue = "prompt" | "fast" | "good" | "slow" | "miss" | "streak" | "complete";
 
 export type PromptDisplay = Pick<FaceButton, "name" | "symbol" | "color"> & Partial<Pick<FaceButton, "id" | "alias" | "modelPosition">>;
 
