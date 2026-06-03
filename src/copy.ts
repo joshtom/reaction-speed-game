@@ -24,7 +24,7 @@ export enum CopyText {
   Instructions = "Instructions",
   ControllerSetup = "Controller setup",
   ControllerDetected = "Controller detected. Match Cross, Circle, Square, and Triangle when they light up.",
-  ControllerConnectHelp = "Connect by USB or Bluetooth, focus this page, then press any controller button once. Browsers only expose gamepads after input.",
+  ControllerConnectHelp = "Connect by USB or Bluetooth, then press any controller button once to activate.",
   Last = "Last",
   Average = "Average",
   Best = "Best",
