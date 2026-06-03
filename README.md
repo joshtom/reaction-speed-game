@@ -70,12 +70,12 @@ npm run typecheck
 
 The app maps standard browser gamepad buttons as:
 
-| Browser button index | Prompt |
-| --- | --- |
-| `0` | Cross |
-| `1` | Circle |
-| `2` | Square |
-| `3` | Triangle |
+| Browser button index | Prompt   |
+| -------------------- | -------- |
+| `0`                  | Cross    |
+| `1`                  | Circle   |
+| `2`                  | Square   |
+| `3`                  | Triangle |
 
 ## Project Structure
 
@@ -110,4 +110,7 @@ Different controllers can label buttons differently at the OS level, but most mo
 - Keep visible copy in `src/copy.ts`; avoid hardcoding UI strings in components.
 - Keep colors in CSS variables or the typed `COLORS` object.
 - Use `npm run typecheck` and `npm run build` before handing off changes.
-- `public/models/dualshock2.glb` may exist locally as an alternate model, but it is not part of the tracked app unless intentionally added.
+
+## Contribution
+
+- Feel free to send a PR
