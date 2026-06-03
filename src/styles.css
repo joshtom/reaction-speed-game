@@ -170,6 +170,8 @@ button:disabled {
 
 .topbar-actions {
   gap: 10px;
+  min-width: 0;
+  justify-content: flex-end;
 }
 
 .icon-button {
@@ -188,6 +190,7 @@ button:disabled {
 }
 
 .connection-pill {
+  min-width: 0;
   max-width: 100%;
   gap: 8px;
   padding: 9px 12px;
@@ -195,6 +198,13 @@ button:disabled {
   background: var(--surface-strong);
   color: var(--muted);
   font-weight: 800;
+}
+
+.connection-pill span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .connection-pill.online {
@@ -251,6 +261,10 @@ button:disabled {
   border-radius: 8px;
   background: var(--surface-progress);
   backdrop-filter: blur(10px);
+}
+
+.round-segments {
+  min-width: 0;
 }
 
 .prompt-card-3d {
@@ -370,10 +384,15 @@ button:disabled {
 .command-deck {
   gap: 10px;
   flex-wrap: wrap;
+  align-items: center;
   padding: 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
+}
+
+.command-deck button {
+  flex: 0 0 auto;
 }
 
 .primary {
@@ -389,9 +408,9 @@ button:disabled {
 
 .round-control {
   min-height: 44px;
-  flex: 1 1 310px;
+  flex: 1 1 240px;
   display: grid;
-  grid-template-columns: auto 36px minmax(140px, 1fr);
+  grid-template-columns: auto 36px minmax(110px, 1fr);
   align-items: center;
   gap: 10px;
   color: var(--muted);
@@ -648,10 +667,13 @@ th {
     min-width: 0;
     overflow: visible;
   }
-
 }
 
 @media (max-width: 720px) {
+  body {
+    background-size: 28px 28px, 28px 28px, auto, auto;
+  }
+
   .app-shell {
     padding: 10px;
   }
@@ -668,19 +690,56 @@ th {
   .topbar {
     align-items: flex-start;
     flex-direction: column;
+    gap: 12px;
+  }
+
+  .brand-mark {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .topbar-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 42px) minmax(0, 1fr);
+    justify-content: start;
+  }
+
+  .connection-pill {
+    grid-column: 1 / -1;
+    width: 100%;
+    justify-content: flex-start;
   }
 
   .play-zone {
-    grid-template-rows: minmax(430px, 1fr) auto;
+    grid-template-rows: minmax(380px, 1fr) auto;
   }
 
   .canvas-wrap {
-    min-height: 430px;
+    min-height: 380px;
   }
 
-  .prompt-orb {
-    right: 14px;
+  .prompt-card-3d {
     top: 14px;
+    right: 14px;
+    width: clamp(104px, 34vw, 132px);
+    min-height: 112px;
+    padding: 12px 10px;
+  }
+
+  .prompt-symbol {
+    font-size: clamp(2.5rem, 14vw, 4rem);
+  }
+
+  .round-progress-tracker {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    padding: 9px 10px;
+  }
+
+  .round-segments {
+    gap: 4px;
   }
 
   .stats-grid {
@@ -695,6 +754,15 @@ th {
     grid-column: 1 / -1;
   }
 
+  .command-deck {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .command-deck button {
+    width: 100%;
+  }
+
   .instruction-grid {
     grid-template-columns: 1fr;
   }
@@ -703,7 +771,62 @@ th {
     max-width: calc(100% - 28px);
     left: 14px;
     right: 14px;
-    top: 14px;
+    top: 136px;
+    font-size: 0.76rem;
+  }
+}
+
+@media (max-width: 430px) {
+  .app-shell {
+    padding: 8px;
+  }
+
+  .hero-panel {
+    min-height: calc(100vh - 16px);
+  }
+
+  .topbar,
+  .arena-layout {
+    padding: 10px;
+  }
+
+  .topbar-actions {
+    grid-template-columns: repeat(3, 40px) minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .icon-button {
+    width: 40px;
+    min-height: 40px;
+  }
+
+  .play-zone {
+    grid-template-rows: minmax(340px, 1fr) auto;
+  }
+
+  .canvas-wrap {
+    min-height: 340px;
+  }
+
+  .prompt-card-3d {
+    width: 104px;
+    min-height: 104px;
+  }
+
+  .game-toast {
+    top: 126px;
+  }
+
+  .round-progress-meta {
+    font-size: 0.66rem;
+  }
+
+  .round-segments {
+    gap: 3px;
+  }
+
+  .round-segments span {
+    height: 7px;
   }
 }
 

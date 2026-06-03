@@ -8,6 +8,9 @@ import { useGamepad } from "./hooks/useGamepad";
 import { useReactionSounds } from "./hooks/useReactionSounds";
 import type { ConnectionState, FaceButton, GameStateSnapshot, GameStatus, GameSummary, PromptDisplay, PromptMode, ReactionGrade, RoundRecord, SoundCue, Theme } from "./types";
 
+const THEME_STORAGE_KEY = "triggr-theme";
+const LEGACY_THEME_STORAGE_KEY = "triggerlab-theme";
+
 function soundCueForGrade(grade: ReactionGrade): SoundCue {
   if (grade === "Fast") return "fast";
   if (grade === "Good") return "good";
@@ -16,7 +19,7 @@ function soundCueForGrade(grade: ReactionGrade): SoundCue {
 
 export function App() {
   const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem("triggerlab-theme");
+    const saved = localStorage.getItem(THEME_STORAGE_KEY) ?? localStorage.getItem(LEGACY_THEME_STORAGE_KEY);
     if (saved === "dark" || saved === "light") return saved;
     return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
   });
@@ -200,7 +203,8 @@ export function App() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    localStorage.setItem("triggerlab-theme", theme);
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+    localStorage.removeItem(LEGACY_THEME_STORAGE_KEY);
   }, [theme]);
 
   useEffect(() => {
@@ -217,7 +221,7 @@ export function App() {
     <main className="app-shell">
       <section className="hero-panel">
         <div className="topbar">
-          <div className="brand-mark"><Gamepad2 size={22} /><span>TriggerLab</span></div>
+          <div className="brand-mark"><Gamepad2 size={22} /><span>Triggr</span></div>
           <div className="topbar-actions">
             <button className="icon-button" type="button" onClick={sounds.toggle} title={sounds.enabled ? "Mute reaction sounds" : "Enable reaction sounds"} aria-label={sounds.enabled ? "Mute reaction sounds" : "Enable reaction sounds"}>
               {sounds.enabled ? <Volume2 size={18} /> : <VolumeX size={18} />}

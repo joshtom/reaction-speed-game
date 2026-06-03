@@ -1,4 +1,4 @@
-# TriggerLab Reaction Arena
+# Triggr Reaction Arena
 
 TanStack React + React Three Fiber reaction tester for standard Gamepad API controllers.
 

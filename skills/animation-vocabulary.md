@@ -1,6 +1,6 @@
 # Animation Vocabulary
 
-Use these terms when describing UI motion in TriggerLab. The app maps the most-used patterns to CSS classes in `src/animationVocabulary.js` and `src/styles.css`.
+Use these terms when describing UI motion in Triggr. The app maps the most-used patterns to CSS classes in `src/animationVocabulary.ts` and `src/styles.css`.
 
 ## Entrances And Exits
 
