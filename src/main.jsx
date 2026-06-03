@@ -50,46 +50,88 @@ function getRandomPrompt(previous) {
 
 function useGamepad(onFaceButton, onConnectState) {
   const previousButtons = useRef(new Set());
+  const onFaceButtonRef = useRef(onFaceButton);
+  const onConnectStateRef = useRef(onConnectState);
+
+  useEffect(() => {
+    onFaceButtonRef.current = onFaceButton;
+    onConnectStateRef.current = onConnectState;
+  }, [onConnectState, onFaceButton]);
 
   useEffect(() => {
     let frame = 0;
     let activeIndex = null;
+    let lastConnectionSignature = "";
 
-    // console.log(navigator.getGamepads)
+    function publishConnection(connected, label) {
+      const signature = `${connected}:${label}`;
+      if (signature === lastConnectionSignature) return;
 
-    function scan() {
+      lastConnectionSignature = signature;
+      onConnectStateRef.current({ connected, label });
+    }
+
+    function readGamepads() {
+      if (!navigator.getGamepads) {
+        publishConnection(false, "Gamepad API unavailable");
+        return;
+      }
+
       const pads = navigator.getGamepads ? Array.from(navigator.getGamepads()).filter(Boolean) : [];
       const current = activeIndex === null ? null : pads.find((pad) => pad.index === activeIndex);
       const pad = current || pads[0];
 
-      // console.log({ pad })
-
       if (pad) {
+        if (activeIndex !== pad.index) previousButtons.current.clear();
         activeIndex = pad.index;
-        onConnectState({
-          connected: true,
-          label: pad.id || "Controller connected"
-        });
+        publishConnection(true, pad.id || "Controller connected");
       } else {
         activeIndex = null;
-        onConnectState({ connected: false, label: "No controller" });
+        previousButtons.current.clear();
+        publishConnection(false, "Press any controller button");
       }
 
       if (pad) {
         FACE_BUTTONS.forEach((button) => {
           const pressed = Boolean(pad.buttons[button.id] && pad.buttons[button.id].pressed);
-          if (pressed && !previousButtons.current.has(button.id)) onFaceButton(button);
+          if (pressed && !previousButtons.current.has(button.id)) onFaceButtonRef.current(button);
           if (pressed) previousButtons.current.add(button.id);
           else previousButtons.current.delete(button.id);
         });
       }
+    }
 
+    function scan() {
+      readGamepads();
       frame = requestAnimationFrame(scan);
     }
 
+    function handleConnected(event) {
+      activeIndex = event.gamepad.index;
+      previousButtons.current.clear();
+      publishConnection(true, event.gamepad.id || "Controller connected");
+      readGamepads();
+    }
+
+    function handleDisconnected(event) {
+      if (activeIndex === event.gamepad.index) activeIndex = null;
+      previousButtons.current.clear();
+      readGamepads();
+    }
+
+    window.addEventListener("gamepadconnected", handleConnected);
+    window.addEventListener("gamepaddisconnected", handleDisconnected);
+    window.addEventListener("focus", readGamepads);
+    readGamepads();
     frame = requestAnimationFrame(scan);
-    return () => cancelAnimationFrame(frame);
-  }, [onConnectState, onFaceButton]);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("gamepadconnected", handleConnected);
+      window.removeEventListener("gamepaddisconnected", handleDisconnected);
+      window.removeEventListener("focus", readGamepads);
+    };
+  }, []);
 }
 
 function ControllerScene() {
@@ -182,7 +224,7 @@ function solidifyMaterial(material) {
 }
 
 function App() {
-  const [connection, setConnection] = useState({ connected: false, label: "No controller" });
+  const [connection, setConnection] = useState({ connected: false, label: "Press any controller button" });
   const [status, setStatus] = useState("welcome");
   const [roundsPerGame, setRoundsPerGame] = useState(10);
   const [prompt, setPrompt] = useState(null);
@@ -509,7 +551,7 @@ function ConnectCard({ connected }) {
         <Info size={17} />
         <span>Controller setup</span>
       </div>
-      <p>{connected ? "Controller detected. Match Cross, Circle, Square, and Triangle when they light up." : "Plug in USB or pair Bluetooth, then press any face button so the browser can detect the gamepad."}</p>
+      <p>{connected ? "Controller detected. Match Cross, Circle, Square, and Triangle when they light up." : "Connect by USB or Bluetooth, focus this page, then press any controller button once. Browsers only expose gamepads after input."}</p>
     </section>
   );
 }
