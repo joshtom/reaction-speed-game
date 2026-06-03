@@ -1,7 +1,7 @@
-import { Suspense, useMemo, useRef } from "react";
+import { Suspense, useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Billboard, Environment, Float, Html, OrbitControls, PerspectiveCamera, Text, useGLTF } from "@react-three/drei";
-import { Box3, DoubleSide, Group, Material, Mesh, MeshStandardMaterial, Object3D, Vector3 } from "three";
+import { Billboard, Environment, Float, Html, OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
+import { Box3, CanvasTexture, DoubleSide, Group, LinearFilter, Material, Mesh, MeshStandardMaterial, Object3D, Vector3 } from "three";
 import { Gamepad2 } from "lucide-react";
 import { COLORS, FACE_BUTTONS } from "../constants";
 import type { FaceButton, PromptDisplay, PromptMode } from "../types";
@@ -57,6 +57,11 @@ function ControllerModel({ prompt, mode }: ControllerSceneProps) {
 
 function ButtonHighlight({ button }: { button: FaceButton }) {
   const group = useRef<Group>(null);
+  const labelTexture = useMemo(() => createButtonLabelTexture(button.symbol), [button.symbol]);
+
+  useEffect(() => {
+    return () => labelTexture.dispose();
+  }, [labelTexture]);
 
   useFrame(({ clock }) => {
     if (!group.current) return;
@@ -75,12 +80,35 @@ function ButtonHighlight({ button }: { button: FaceButton }) {
           <circleGeometry args={[0.18, 48]} />
           <meshBasicMaterial color={button.color} transparent opacity={0.22} depthTest={false} />
         </mesh>
-        <Text position={[0, 0, 0.01]} fontSize={0.105} color={COLORS.white} anchorX="center" anchorY="middle" renderOrder={6}>
-          {button.symbol}
-        </Text>
+        <sprite position={[0, 0, 0.02]} scale={[0.22, 0.22, 1]} renderOrder={6}>
+          <spriteMaterial map={labelTexture} transparent depthTest={false} depthWrite={false} />
+        </sprite>
       </Billboard>
     </group>
   );
+}
+
+function createButtonLabelTexture(symbol: string): CanvasTexture {
+  const canvas = document.createElement("canvas");
+  const size = 160;
+  canvas.width = size;
+  canvas.height = size;
+
+  const context = canvas.getContext("2d");
+  if (!context) return new CanvasTexture(canvas);
+
+  context.clearRect(0, 0, size, size);
+  context.fillStyle = COLORS.white;
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.font = "900 104px Arial, Helvetica, sans-serif";
+  context.fillText(symbol, size / 2, size / 2 + 4);
+
+  const texture = new CanvasTexture(canvas);
+  texture.minFilter = LinearFilter;
+  texture.magFilter = LinearFilter;
+  texture.needsUpdate = true;
+  return texture;
 }
 
 function normalizeModel(scene: Object3D): { model: Object3D; modelPosition: [number, number, number]; modelScale: number } {

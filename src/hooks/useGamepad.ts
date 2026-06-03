@@ -6,6 +6,8 @@ import type { ConnectionState, FaceButton, FaceButtonId } from "../types";
 type FaceButtonHandler = (button: FaceButton) => void;
 type ConnectionHandler = (state: ConnectionState) => void;
 
+const TRANSIENT_DISCONNECT_GRACE_MS = 1800;
+
 export function useGamepad(onFaceButton: FaceButtonHandler, onConnectState: ConnectionHandler): void {
   const previousButtons = useRef<Set<FaceButtonId>>(new Set());
   const onFaceButtonRef = useRef<FaceButtonHandler>(onFaceButton);
@@ -20,6 +22,8 @@ export function useGamepad(onFaceButton: FaceButtonHandler, onConnectState: Conn
     let frame = 0;
     let activeIndex: number | null = null;
     let lastConnectionSignature = "";
+    let lastSeenAt = 0;
+    let lastConnectedLabel: string = CopyText.ControllerConnected;
 
     function publishConnection(connected: boolean, label: string): void {
       const signature = `${connected}:${label}`;
@@ -42,8 +46,16 @@ export function useGamepad(onFaceButton: FaceButtonHandler, onConnectState: Conn
       if (pad) {
         if (activeIndex !== pad.index) previousButtons.current.clear();
         activeIndex = pad.index;
-        publishConnection(true, pad.id || CopyText.ControllerConnected);
+        lastSeenAt = performance.now();
+        lastConnectedLabel = pad.id || CopyText.ControllerConnected;
+        publishConnection(true, lastConnectedLabel);
       } else {
+        const isLikelyTransient = activeIndex !== null && performance.now() - lastSeenAt < TRANSIENT_DISCONNECT_GRACE_MS;
+        if (isLikelyTransient) {
+          publishConnection(true, lastConnectedLabel);
+          return;
+        }
+
         activeIndex = null;
         previousButtons.current.clear();
         publishConnection(false, CopyText.PressAnyControllerButton);
@@ -66,13 +78,16 @@ export function useGamepad(onFaceButton: FaceButtonHandler, onConnectState: Conn
 
     function handleConnected(event: GamepadEvent): void {
       activeIndex = event.gamepad.index;
+      lastSeenAt = performance.now();
+      lastConnectedLabel = event.gamepad.id || CopyText.ControllerConnected;
       previousButtons.current.clear();
-      publishConnection(true, event.gamepad.id || CopyText.ControllerConnected);
+      publishConnection(true, lastConnectedLabel);
       readGamepads();
     }
 
     function handleDisconnected(event: GamepadEvent): void {
       if (activeIndex === event.gamepad.index) activeIndex = null;
+      lastSeenAt = 0;
       previousButtons.current.clear();
       readGamepads();
     }
