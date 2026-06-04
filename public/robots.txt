@@ -22,4 +22,4 @@ Allow: /
 User-agent: CCBot
 Allow: /
 
-Sitemap: https://joshtom.github.io/reaction-speed-game/sitemap.xml
+Sitemap: https://triggr-reaction.vercel.app/sitemap.xml

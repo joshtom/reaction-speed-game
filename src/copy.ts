@@ -22,6 +22,7 @@ export enum CopyText {
   StartGame = "Start game",
   Reset = "Reset",
   Instructions = "Instructions",
+  CloseInstructions = "Close instructions",
   ControllerSetup = "Controller setup",
   ControllerDetected = "Controller detected. Match Cross, Circle, Square, and Triangle when they light up.",
   ControllerConnectHelp = "Connect by USB or Bluetooth, then press any controller button once to activate.",

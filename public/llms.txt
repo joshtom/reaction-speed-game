@@ -23,7 +23,7 @@ tracks misses and streaks, and stores recent game summaries in memory.
 
 ## How To Use
 
-1. Open https://joshtom.github.io/reaction-speed-game/
+1. Open https://triggr-reaction.vercel.app/
 2. Connect a controller using USB or Bluetooth.
 3. Focus the page and press any controller button once to activate the browser Gamepad API.
 4. Choose the number of rounds and start the game.
@@ -31,6 +31,6 @@ tracks misses and streaks, and stores recent game summaries in memory.
 
 ## Links
 
-- Website: https://joshtom.github.io/reaction-speed-game/
+- Website: https://triggr-reaction.vercel.app/
 - Repository: https://github.com/joshtom/reaction-speed-game
-- Screenshot: https://joshtom.github.io/reaction-speed-game/images/app-ss.png
+- Screenshot: https://triggr-reaction.vercel.app/images/app-ss.png

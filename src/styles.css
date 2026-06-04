@@ -578,11 +578,21 @@ th {
 
 .instruction-panel {
   width: min(760px, 100%);
+  max-height: min(760px, calc(100vh - 36px));
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 22px;
   background: var(--panel-modal);
   box-shadow: 0 30px 120px var(--shadow-strong);
+}
+
+.instruction-panel-scroll {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 
 .rounds-modal {
@@ -624,7 +634,6 @@ th {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  margin: 16px 0;
 }
 
 .instruction-grid > div {
@@ -765,6 +774,16 @@ th {
 
   .instruction-grid {
     grid-template-columns: 1fr;
+  }
+
+  .modal-backdrop {
+    align-items: start;
+    padding: 12px;
+  }
+
+  .instruction-panel {
+    max-height: calc(100dvh - 24px);
+    padding: 14px;
   }
 
   .game-toast {
