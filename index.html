@@ -3,10 +3,71 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Triggr Reaction Arena</title>
+    <title>Triggr - Controller Reaction Speed Game</title>
+    <meta
+      name="description"
+      content="Test your controller reaction speed in Triggr, a 3D browser game with random face-button prompts, reaction grading, streaks, sounds, and score history."
+    />
+    <meta
+      name="keywords"
+      content="reaction speed game, controller reaction test, gamepad tester, browser game, reflex game, Gamepad API, Triggr"
+    />
+    <meta name="author" content="joshtom" />
+    <meta name="application-name" content="Triggr" />
+    <meta name="theme-color" content="#090b10" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+
+    <link rel="canonical" href="https://joshtom.github.io/reaction-speed-game/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Triggr" />
+    <meta property="og:title" content="Triggr - Controller Reaction Speed Game" />
+    <meta
+      property="og:description"
+      content="Test your controller reaction speed with random face-button prompts, reaction grading, streaks, sounds, and score history."
+    />
+    <meta property="og:url" content="https://joshtom.github.io/reaction-speed-game/" />
+    <meta property="og:image" content="https://joshtom.github.io/reaction-speed-game/images/app-ss.png" />
+    <meta property="og:image:alt" content="Triggr reaction speed game showing a 3D controller and score dashboard" />
+    <meta property="og:image:width" content="2880" />
+    <meta property="og:image:height" content="1798" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Triggr - Controller Reaction Speed Game" />
+    <meta
+      name="twitter:description"
+      content="Test your controller reaction speed with random face-button prompts, reaction grading, streaks, sounds, and score history."
+    />
+    <meta name="twitter:image" content="https://joshtom.github.io/reaction-speed-game/images/app-ss.png" />
+    <meta name="twitter:image:alt" content="Triggr reaction speed game showing a 3D controller and score dashboard" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Triggr",
+        "url": "https://joshtom.github.io/reaction-speed-game/",
+        "image": "https://joshtom.github.io/reaction-speed-game/images/app-ss.png",
+        "description": "A controller-first reaction speed game with random face-button prompts, reaction grading, streaks, sounds, and score history.",
+        "applicationCategory": "GameApplication",
+        "operatingSystem": "Any modern browser with Gamepad API support",
+        "browserRequirements": "Requires JavaScript and a browser with Gamepad API support",
+        "isAccessibleForFree": true,
+        "author": {
+          "@type": "Person",
+          "name": "joshtom"
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      Triggr is a controller reaction speed game that requires JavaScript. Connect a gamepad, react to random
+      face-button prompts, and track reaction grades, streaks, misses, and recent game scores.
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
