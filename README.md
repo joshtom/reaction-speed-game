@@ -35,8 +35,6 @@ V2 will expand prompt support to the rest of the standard controller button set 
 - L2 and R2 triggers
 - D-pad Up, Down, Left, and Right
 
-Analog stick prompts are intentionally reserved for a later V3 so V2 can stay focused on button accuracy, timing, and a better controller-mapping experience.
-
 ## Tech Stack
 
 - Vite
