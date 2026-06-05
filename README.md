@@ -21,6 +21,22 @@ Triggr is a controller-first reaction speed game built with TanStack React, Reac
 - Centralized UI copy in `src/copy.ts`
 - Reusable design tokens in `src/styles.css` and 3D color constants in `src/constants.ts`
 
+## Version Roadmap
+
+### V1: Current Release
+
+Triggr V1 focuses on fast, polished reaction training for the four primary face buttons: Cross, Circle, Square, and Triangle.
+
+### V2: Expanded Button Support
+
+V2 will expand prompt support to the rest of the standard controller button set exposed by the browser Gamepad API:
+
+- L1 and R1 shoulder buttons
+- L2 and R2 triggers
+- D-pad Up, Down, Left, and Right
+
+Analog stick prompts are intentionally reserved for a later V3 so V2 can stay focused on button accuracy, timing, and a better controller-mapping experience.
+
 ## Tech Stack
 
 - Vite
