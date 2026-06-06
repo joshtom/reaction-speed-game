@@ -70,7 +70,18 @@ export type GameSummary = {
   misses: number;
   rounds: number;
   hits: number;
+  mode: string;
+  groups: string[];
+  accuracy: number;
   createdAt: string;
+};
+
+export type UserPreferences = {
+  mode: GameModeId;
+  rounds: number;
+  sound: boolean;
+  theme: Theme;
+  customGroups: ControllerButtonGroup[];
 };
 
 export type ConnectionState = {

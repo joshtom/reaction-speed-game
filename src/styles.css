@@ -687,6 +687,27 @@ td {
   white-space: nowrap;
 }
 
+td em {
+  display: block;
+  max-width: 150px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.64rem;
+  font-style: normal;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+}
+
+.history-mode {
+  display: block;
+  max-width: 150px;
+  overflow: hidden;
+  color: var(--text);
+  font-weight: 950;
+  text-overflow: ellipsis;
+}
+
 th {
   color: var(--muted);
   font-size: 0.68rem;

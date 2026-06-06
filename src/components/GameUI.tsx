@@ -20,6 +20,14 @@ import type {
 
 type CustomStyle = CSSProperties & Record<`--${string}`, string | number>;
 
+function keyboardLabel(key: string): string {
+  if (key === 'arrowup') return 'Arrow ↑';
+  if (key === 'arrowdown') return 'Arrow ↓';
+  if (key === 'arrowleft') return 'Arrow ←';
+  if (key === 'arrowright') return 'Arrow →';
+  return key.toUpperCase();
+}
+
 export function PromptCardOverlay({
   prompt,
   mode,
@@ -217,6 +225,8 @@ export function GameHistory({ games }: { games: GameSummary[] }) {
         <thead>
           <tr>
             <th>{CopyText.Rank}</th>
+            <th>{CopyText.ModeName}</th>
+            <th>{CopyText.Accuracy}</th>
             <th>{CopyText.Avg}</th>
             <th>{CopyText.Best}</th>
             <th>{CopyText.Miss}</th>
@@ -226,7 +236,7 @@ export function GameHistory({ games }: { games: GameSummary[] }) {
         <tbody>
           {!games.length && (
             <tr>
-              <td colSpan={5} className='empty-cell'>
+              <td colSpan={7} className='empty-cell'>
                 {CopyText.FinishGameToRank}
               </td>
             </tr>
@@ -244,6 +254,11 @@ export function GameHistory({ games }: { games: GameSummary[] }) {
                     emptyValue
                   )}
                 </td>
+                <td>
+                  <span className='history-mode'>{game.mode}</span>
+                  <em>{game.groups.join(', ')}</em>
+                </td>
+                <td>{Math.round(game.accuracy * 100)}%</td>
                 <td>{game.avg === null ? emptyValue : ms(game.avg)}</td>
                 <td>{game.best === null ? emptyValue : ms(game.best)}</td>
                 <td>{game.misses}</td>
@@ -506,7 +521,7 @@ export function ControllerSetupModal({
                 <em>
                   {lastDetected
                     ? `${getGroupLabel(lastDetected.group)} · ${CopyText.BrowserIndex} ${lastDetected.index}`
-                    : CopyText.ButtonTestIdle}
+                    : CopyText.MappingUnknown}
                 </em>
               </div>
             </div>
@@ -534,7 +549,7 @@ export function ControllerSetupModal({
                     {button.symbol}
                   </span>
                   <strong>{button.name}</strong>
-                  <em>{button.key.toUpperCase()}</em>
+                  <em>{keyboardLabel(button.key)}</em>
                 </div>
               ))}
             </div>

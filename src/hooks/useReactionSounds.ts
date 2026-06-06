@@ -43,8 +43,8 @@ const CUE_TONES: Record<SoundCue, Tone[]> = {
   ]
 };
 
-export function useReactionSounds() {
-  const [enabled, setEnabled] = useState(true);
+export function useReactionSounds(initialEnabled = true) {
+  const [enabled, setEnabled] = useState(initialEnabled);
   const audioContext = useRef<AudioContext | null>(null);
 
   const unlock = useCallback((): AudioContext => {

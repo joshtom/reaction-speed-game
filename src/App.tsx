@@ -42,6 +42,7 @@ import {
   getButtonsForMode,
   getButtonsForGroups,
   getGroupPerformance,
+  getGroupLabel,
   gradeReaction,
   ms,
   nextDelay,
@@ -64,10 +65,72 @@ import type {
   RoundRecord,
   SoundCue,
   Theme,
+  UserPreferences,
 } from './types';
 
 const THEME_STORAGE_KEY = 'triggr-theme';
 const LEGACY_THEME_STORAGE_KEY = 'triggerlab-theme';
+const PREFERENCES_STORAGE_KEY = 'triggr-preferences';
+const DEFAULT_CUSTOM_GROUPS: ControllerButtonGroup[] = [
+  'face',
+  'dpad',
+  'shoulder',
+  'trigger',
+];
+const DEFAULT_PREFERENCES: UserPreferences = {
+  mode: 'classic',
+  rounds: 10,
+  sound: true,
+  theme: 'dark',
+  customGroups: DEFAULT_CUSTOM_GROUPS,
+};
+
+function getSavedPreferences(): UserPreferences {
+  try {
+    const saved = localStorage.getItem(PREFERENCES_STORAGE_KEY);
+    if (!saved) {
+      const savedTheme =
+        localStorage.getItem(THEME_STORAGE_KEY) ??
+        localStorage.getItem(LEGACY_THEME_STORAGE_KEY);
+      return {
+        ...DEFAULT_PREFERENCES,
+        theme:
+          savedTheme === 'dark' || savedTheme === 'light'
+            ? savedTheme
+            : window.matchMedia('(prefers-color-scheme: light)').matches
+              ? 'light'
+              : 'dark',
+      };
+    }
+    const parsed = JSON.parse(saved) as Partial<UserPreferences>;
+    const mode: GameModeId = parsed.mode && GAME_MODES.some((item) => item.id === parsed.mode)
+      ? parsed.mode
+      : DEFAULT_PREFERENCES.mode;
+    const customGroups = parsed.customGroups?.filter((group) =>
+      DEFAULT_CUSTOM_GROUPS.includes(group),
+    );
+    return {
+      mode,
+      rounds:
+        typeof parsed.rounds === 'number'
+          ? Math.min(20, Math.max(5, parsed.rounds))
+          : DEFAULT_PREFERENCES.rounds,
+      sound:
+        typeof parsed.sound === 'boolean'
+          ? parsed.sound
+          : DEFAULT_PREFERENCES.sound,
+      theme:
+        parsed.theme === 'dark' || parsed.theme === 'light'
+          ? parsed.theme
+          : DEFAULT_PREFERENCES.theme,
+      customGroups: customGroups?.length
+        ? customGroups
+        : DEFAULT_PREFERENCES.customGroups,
+    };
+  } catch {
+    return DEFAULT_PREFERENCES;
+  }
+}
 
 function soundCueForGrade(grade: ReactionGrade): SoundCue {
   if (grade === CopyText.Fast) return 'fast';
@@ -76,8 +139,10 @@ function soundCueForGrade(grade: ReactionGrade): SoundCue {
 }
 
 export function App() {
+  const savedPreferences = useMemo(getSavedPreferences, []);
   const [theme, setTheme] = useState<Theme>(() => {
     const saved =
+      savedPreferences.theme ??
       localStorage.getItem(THEME_STORAGE_KEY) ??
       localStorage.getItem(LEGACY_THEME_STORAGE_KEY);
     if (saved === 'dark' || saved === 'light') return saved;
@@ -90,14 +155,9 @@ export function App() {
     label: CopyText.PressAnyControllerButton,
   });
   const [status, setStatus] = useState<GameStatus>('welcome');
-  const [selectedMode, setSelectedMode] = useState<GameModeId>('classic');
-  const [customGroups, setCustomGroups] = useState<ControllerButtonGroup[]>([
-    'face',
-    'dpad',
-    'shoulder',
-    'trigger',
-  ]);
-  const [roundsPerGame, setRoundsPerGame] = useState(10);
+  const [selectedMode, setSelectedMode] = useState<GameModeId>(savedPreferences.mode);
+  const [customGroups, setCustomGroups] = useState<ControllerButtonGroup[]>(savedPreferences.customGroups);
+  const [roundsPerGame, setRoundsPerGame] = useState(savedPreferences.rounds);
   const [prompt, setPrompt] = useState<PromptDisplay | null>(null);
   const [mode, setMode] = useState<PromptMode>('idle');
   const [message, setMessage] = useState('');
@@ -125,7 +185,7 @@ export function App() {
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const promptStartedAt = useRef(0);
   const promptButtonsRef = useRef<ControllerButton[]>([]);
-  const sounds = useReactionSounds();
+  const sounds = useReactionSounds(savedPreferences.sound);
 
   const activeMode = useMemo(
     () => GAME_MODES.find((mode) => mode.id === selectedMode) ?? GAME_MODES[0],
@@ -285,6 +345,9 @@ export function App() {
       misses: finalMisses,
       rounds: finalRounds.length,
       hits: finalHits,
+      mode: activeMode.name,
+      groups: activeButtonGroups.map(getGroupLabel),
+      accuracy: finalRounds.length ? finalHits / finalRounds.length : 0,
       createdAt: new Date().toLocaleTimeString([], {
         hour: '2-digit',
         minute: '2-digit',
@@ -413,6 +476,17 @@ export function App() {
     localStorage.setItem(THEME_STORAGE_KEY, theme);
     localStorage.removeItem(LEGACY_THEME_STORAGE_KEY);
   }, [theme]);
+
+  useEffect(() => {
+    const preferences: UserPreferences = {
+      mode: selectedMode,
+      rounds: roundsPerGame,
+      sound: sounds.enabled,
+      theme,
+      customGroups,
+    };
+    localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(preferences));
+  }, [customGroups, roundsPerGame, selectedMode, sounds.enabled, theme]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent): void {
