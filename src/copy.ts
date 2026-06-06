@@ -40,7 +40,7 @@ export enum CopyText {
   ClassicModeLabel = "Face buttons",
   ClassicModeDescription = "Cross, Circle, Square, and Triangle.",
   FullPadMode = "Full Pad",
-  FullPadModeLabel = "All V2 buttons",
+  FullPadModeLabel = "All buttons",
   FullPadModeDescription = "Face buttons, shoulders, triggers, and D-pad.",
   DpadDrillMode = "D-pad Drill",
   DpadDrillModeLabel = "Direction focus",
