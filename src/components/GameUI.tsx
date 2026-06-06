@@ -94,18 +94,20 @@ export function RoundProgressTracker({
 export function GameModeSelector({
   selectedMode,
   onSelect,
+  disabled,
 }: {
   selectedMode: GameModeId;
   onSelect: (mode: GameModeId) => void;
+  disabled: boolean;
 }) {
   return (
     <div className='mode-selector' aria-label={CopyText.GameMode}>
-      {/* <span>{CopyText.GameMode}</span> */}
       <div className='mode-options'>
         {GAME_MODES.map((mode) => (
           <button
             className={mode.id === selectedMode ? 'active' : ''}
             type='button'
+            disabled={disabled}
             onClick={() => onSelect(mode.id)}
             key={mode.id}
           >

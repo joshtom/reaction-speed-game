@@ -450,26 +450,25 @@ export function App() {
               />
             </div>
             <div className='command-deck'>
+              <GameModeSelector
+                selectedMode={selectedMode}
+                onSelect={setSelectedMode}
+                disabled={status === 'waiting' || status === 'prompt'}
+              />
               {(status === 'welcome' || status === 'complete') && (
-                <>
-                  <GameModeSelector
-                    selectedMode={selectedMode}
-                    onSelect={setSelectedMode}
+                <label className='round-control'>
+                  <span>{CopyText.RoundsPerGame}</span>
+                  <strong>{roundsPerGame}</strong>
+                  <input
+                    type='range'
+                    min='5'
+                    max='20'
+                    value={roundsPerGame}
+                    onChange={(event) =>
+                      setRoundsPerGame(Number(event.target.value))
+                    }
                   />
-                  <label className='round-control'>
-                    <span>{CopyText.RoundsPerGame}</span>
-                    <strong>{roundsPerGame}</strong>
-                    <input
-                      type='range'
-                      min='5'
-                      max='20'
-                      value={roundsPerGame}
-                      onChange={(event) =>
-                        setRoundsPerGame(Number(event.target.value))
-                      }
-                    />
-                  </label>
-                </>
+                </label>
               )}
               <button
                 className='primary'
