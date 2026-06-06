@@ -496,7 +496,9 @@ export function ControllerSetupModal({
               <span>{CopyText.ButtonTest}</span>
             </div>
             <div className={`detected-button ${lastDetected ? 'active' : ''}`}>
-              <span>{lastDetected ? lastDetected.symbol : '...'}</span>
+              <span>
+                {lastDetected ? lastDetected.symbol : <Gamepad2 size={24} />}
+              </span>
               <div>
                 <strong>
                   {lastDetected ? lastDetected.name : CopyText.NoButtonDetected}
