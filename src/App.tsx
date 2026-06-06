@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { ControllerScene } from './components/ControllerScene';
 import {
-  ConnectCard,
+  ControllerSetupModal,
   GameHistory,
   GameToast,
   InstructionPanel,
@@ -93,6 +93,7 @@ export function App() {
   const [misses, setMisses] = useState(0);
   const [showInstructions, setShowInstructions] = useState(false);
   const [showRounds, setShowRounds] = useState(false);
+  const [showControllerSetup, setShowControllerSetup] = useState(false);
   const stateRef = useRef<GameStateSnapshot>({
     status,
     prompt,
@@ -408,12 +409,16 @@ export function App() {
             >
               <Trophy size={18} />
             </button>
-            <div
+            <button
               className={`connection-pill ${connection.connected ? 'online' : ''}`}
+              type='button'
+              onClick={() => setShowControllerSetup(true)}
+              title={CopyText.OpenControllerSetup}
+              aria-label={CopyText.OpenControllerSetup}
             >
               <Wifi size={16} />
               <span>{connection.label}</span>
-            </div>
+            </button>
           </div>
         </div>
         <div className='arena-layout'>
@@ -471,7 +476,6 @@ export function App() {
             </div>
           </section>
           <aside className='side-stack'>
-            <ConnectCard connected={connection.connected} />
             <LiveStats
               stats={stats}
               hits={hits}
@@ -488,6 +492,12 @@ export function App() {
       )}
       {showRounds && (
         <RoundTableModal rounds={rounds} onClose={() => setShowRounds(false)} />
+      )}
+      {showControllerSetup && (
+        <ControllerSetupModal
+          connection={connection}
+          onClose={() => setShowControllerSetup(false)}
+        />
       )}
     </main>
   );

@@ -103,6 +103,12 @@ body {
   color: var(--text);
 }
 
+#root,
+.app-shell,
+.hero-panel {
+  max-width: 100%;
+}
+
 button,
 input {
   font: inherit;
@@ -193,6 +199,7 @@ button:disabled {
   min-width: 0;
   max-width: 100%;
   gap: 8px;
+  overflow: hidden;
   padding: 9px 12px;
   border-radius: 8px;
   background: var(--surface-strong);
@@ -227,7 +234,6 @@ button:disabled {
   gap: 14px;
 }
 
-.connect-card p,
 .instruction-panel p {
   margin: 12px 0 0;
   color: var(--muted);
@@ -261,6 +267,7 @@ button:disabled {
   border-radius: 8px;
   background: var(--surface-progress);
   backdrop-filter: blur(10px);
+  overflow: hidden;
 }
 
 .round-segments {
@@ -439,7 +446,6 @@ input[type="range"] {
   overflow: auto;
 }
 
-.connect-card,
 .table-card,
 .stats-grid {
   border: 1px solid var(--line);
@@ -447,17 +453,8 @@ input[type="range"] {
   background: var(--panel);
 }
 
-.connect-card,
 .table-card {
   padding: 14px;
-}
-
-.connect-card a {
-  display: inline-flex;
-  margin-top: 12px;
-  color: var(--link);
-  font-weight: 900;
-  text-decoration: none;
 }
 
 .section-title {
@@ -576,7 +573,8 @@ th {
   animation: fadeIn 160ms ease-out both;
 }
 
-.instruction-panel {
+.instruction-panel,
+.controller-setup-modal {
   width: min(760px, 100%);
   max-height: min(760px, calc(100vh - 36px));
   display: grid;
@@ -589,10 +587,20 @@ th {
   box-shadow: 0 30px 120px var(--shadow-strong);
 }
 
-.instruction-panel-scroll {
+.controller-setup-modal {
+  padding: 18px;
+}
+
+.instruction-panel-scroll,
+.controller-setup-scroll {
   min-height: 0;
   overflow: auto;
   overscroll-behavior: contain;
+}
+
+.controller-setup-scroll {
+  display: grid;
+  gap: 12px;
 }
 
 .rounds-modal {
@@ -649,6 +657,106 @@ th {
   display: block;
 }
 
+.controller-status-card,
+.setup-note-card,
+.button-map-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  padding: 14px;
+}
+
+.controller-status-card {
+  display: grid;
+  gap: 8px;
+}
+
+.controller-status-card span {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.controller-status-card strong {
+  color: var(--text);
+  font-size: clamp(1rem, 2.4vw, 1.45rem);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.controller-status-card.online strong {
+  color: var(--good);
+}
+
+.controller-status-card p,
+.setup-note-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 750;
+  line-height: 1.55;
+}
+
+.setup-note-card {
+  display: grid;
+  gap: 10px;
+}
+
+.button-map-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.button-map-item {
+  min-height: 112px;
+  display: grid;
+  place-items: center;
+  gap: 7px;
+  padding: 12px 8px;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  background: var(--surface-faint);
+  text-align: center;
+}
+
+.button-map-item span {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--button-color), black 10%);
+  color: var(--text-prompt);
+  box-shadow:
+    0 12px 28px color-mix(in srgb, var(--button-color), transparent 64%),
+    inset -7px -9px 12px var(--shadow-inset),
+    inset 6px 6px 10px var(--highlight-inset);
+  font-size: 1.5rem;
+  font-weight: 950;
+}
+
+.button-map-item strong,
+.button-map-item em {
+  display: block;
+}
+
+.button-map-item strong {
+  font-size: 0.76rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.button-map-item em {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
 @media (max-width: 1100px) {
   body {
     height: auto;
@@ -693,6 +801,7 @@ th {
 
   .topbar,
   .arena-layout {
+    min-width: 0;
     padding: 12px;
   }
 
@@ -710,7 +819,7 @@ th {
   .topbar-actions {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(3, 42px) minmax(0, 1fr);
+    grid-template-columns: repeat(3, 42px);
     justify-content: start;
   }
 
@@ -721,10 +830,14 @@ th {
   }
 
   .play-zone {
+    width: 100%;
+    max-width: 100%;
     grid-template-rows: minmax(380px, 1fr) auto;
   }
 
   .canvas-wrap {
+    width: 100%;
+    max-width: 100%;
     min-height: 380px;
   }
 
@@ -764,6 +877,8 @@ th {
   }
 
   .command-deck {
+    width: 100%;
+    max-width: 100%;
     display: grid;
     grid-template-columns: 1fr;
   }
@@ -781,9 +896,14 @@ th {
     padding: 12px;
   }
 
-  .instruction-panel {
+  .instruction-panel,
+  .controller-setup-modal {
     max-height: calc(100dvh - 24px);
     padding: 14px;
+  }
+
+  .button-map-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .game-toast {
@@ -810,7 +930,7 @@ th {
   }
 
   .topbar-actions {
-    grid-template-columns: repeat(3, 40px) minmax(0, 1fr);
+    grid-template-columns: repeat(3, 40px);
     gap: 8px;
   }
 

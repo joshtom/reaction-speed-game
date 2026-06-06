@@ -1,9 +1,10 @@
 import { useMemo, type CSSProperties } from "react";
-import { BookOpen, Info, Medal, Trophy, X } from "lucide-react";
+import { BookOpen, Gamepad2, Info, Medal, Trophy, X } from "lucide-react";
 import { motionClassNames } from "../animationVocabulary";
 import { CopyText, emptyValue } from "../copy";
+import { FACE_BUTTONS } from "../constants";
 import { ms } from "../gameUtils";
-import type { GameStatus, GameSummary, LiveStatsValue, PromptDisplay, PromptMode, RoundRecord } from "../types";
+import type { ConnectionState, GameStatus, GameSummary, LiveStatsValue, PromptDisplay, PromptMode, RoundRecord } from "../types";
 
 type CustomStyle = CSSProperties & Record<`--${string}`, string | number>;
 
@@ -46,18 +47,6 @@ export function RoundProgressTracker({ roundsPlayed, roundsPerGame }: { roundsPl
         ))}
       </div>
     </div>
-  );
-}
-
-export function ConnectCard({ connected }: { connected: boolean }) {
-  return (
-    <section className={`connect-card ${motionClassNames.scaleIn}`}>
-      <div className="section-title">
-        <Info size={17} />
-        <span>{CopyText.ControllerSetup}</span>
-      </div>
-      <p>{connected ? CopyText.ControllerDetected : CopyText.ControllerConnectHelp}</p>
-    </section>
   );
 }
 
@@ -185,6 +174,43 @@ export function InstructionPanel({ onClose }: { onClose: () => void }) {
             <div><strong>{CopyText.InstructionReactTitle}</strong><p>{CopyText.InstructionReactBody}</p></div>
             <div><strong>{CopyText.InstructionScoreTitle}</strong><p>{CopyText.InstructionScoreBody}</p></div>
             <div><strong>{CopyText.InstructionKeyboardTitle}</strong><p>{CopyText.InstructionKeyboardBody}</p></div>
+          </div>
+        </div>
+        <button className="primary" onClick={onClose}>{CopyText.BackToArena}</button>
+      </section>
+    </div>
+  );
+}
+
+export function ControllerSetupModal({ connection, onClose }: { connection: ConnectionState; onClose: () => void }) {
+  return (
+    <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label={CopyText.ControllerSetup}>
+      <section className={`controller-setup-modal ${motionClassNames.popIn}`}>
+        <div className="modal-heading">
+          <div className="section-title"><Gamepad2 size={18} /><span>{CopyText.ControllerSetup}</span></div>
+          <button className="icon-button" type="button" onClick={onClose} title={CopyText.CloseControllerSetup} aria-label={CopyText.CloseControllerSetup}><X size={18} /></button>
+        </div>
+        <div className="controller-setup-scroll">
+          <div className={`controller-status-card ${connection.connected ? "online" : ""}`}>
+            <span>{connection.connected ? CopyText.DetectedController : CopyText.ActivationRequired}</span>
+            <strong>{connection.connected ? connection.label : CopyText.ControllerNotActive}</strong>
+            <p>{connection.connected ? CopyText.ControllerDetected : CopyText.ControllerConnectHelp}</p>
+          </div>
+          <div className="setup-note-card">
+            <div className="section-title"><Info size={17} /><span>{CopyText.ControllerStatus}</span></div>
+            <p>{CopyText.BrowserGamepadNote}</p>
+          </div>
+          <div className="button-map-card">
+            <div className="section-title"><Gamepad2 size={17} /><span>{CopyText.SupportedButtons}</span></div>
+            <div className="button-map-grid">
+              {FACE_BUTTONS.map((button) => (
+                <div className="button-map-item" key={button.id}>
+                  <span style={{ "--button-color": button.color } as CustomStyle}>{button.symbol}</span>
+                  <strong>{button.name}</strong>
+                  <em>{button.key.toUpperCase()}</em>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
         <button className="primary" onClick={onClose}>{CopyText.BackToArena}</button>
