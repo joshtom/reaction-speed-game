@@ -1,22 +1,22 @@
 import { useEffect, useRef } from "react";
-import { FACE_BUTTONS } from "../constants";
+import { CONTROLLER_BUTTONS } from "../constants";
 import { CopyText } from "../copy";
-import type { ConnectionState, FaceButton, FaceButtonId } from "../types";
+import type { ConnectionState, ControllerButton, ControllerButtonId } from "../types";
 
-type FaceButtonHandler = (button: FaceButton) => void;
+type ControllerButtonHandler = (button: ControllerButton) => void;
 type ConnectionHandler = (state: ConnectionState) => void;
 
 const TRANSIENT_DISCONNECT_GRACE_MS = 1800;
 
-export function useGamepad(onFaceButton: FaceButtonHandler, onConnectState: ConnectionHandler): void {
-  const previousButtons = useRef<Set<FaceButtonId>>(new Set());
-  const onFaceButtonRef = useRef<FaceButtonHandler>(onFaceButton);
+export function useGamepad(onControllerButton: ControllerButtonHandler, onConnectState: ConnectionHandler): void {
+  const previousButtons = useRef<Set<ControllerButtonId>>(new Set());
+  const onControllerButtonRef = useRef<ControllerButtonHandler>(onControllerButton);
   const onConnectStateRef = useRef<ConnectionHandler>(onConnectState);
 
   useEffect(() => {
-    onFaceButtonRef.current = onFaceButton;
+    onControllerButtonRef.current = onControllerButton;
     onConnectStateRef.current = onConnectState;
-  }, [onConnectState, onFaceButton]);
+  }, [onConnectState, onControllerButton]);
 
   useEffect(() => {
     let frame = 0;
@@ -63,9 +63,9 @@ export function useGamepad(onFaceButton: FaceButtonHandler, onConnectState: Conn
 
       if (!pad) return;
 
-      FACE_BUTTONS.forEach((button) => {
+      CONTROLLER_BUTTONS.forEach((button) => {
         const pressed = Boolean(pad.buttons[button.id]?.pressed);
-        if (pressed && !previousButtons.current.has(button.id)) onFaceButtonRef.current(button);
+        if (pressed && !previousButtons.current.has(button.id)) onControllerButtonRef.current(button);
         if (pressed) previousButtons.current.add(button.id);
         else previousButtons.current.delete(button.id);
       });

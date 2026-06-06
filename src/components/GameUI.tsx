@@ -2,9 +2,9 @@ import { useMemo, type CSSProperties } from "react";
 import { BookOpen, Gamepad2, Info, Medal, Trophy, X } from "lucide-react";
 import { motionClassNames } from "../animationVocabulary";
 import { CopyText, emptyValue } from "../copy";
-import { FACE_BUTTONS } from "../constants";
+import { CONTROLLER_BUTTONS, GAME_MODES } from "../constants";
 import { ms } from "../gameUtils";
-import type { ConnectionState, GameStatus, GameSummary, LiveStatsValue, PromptDisplay, PromptMode, RoundRecord } from "../types";
+import type { ConnectionState, GameModeId, GameStatus, GameSummary, LiveStatsValue, PromptDisplay, PromptMode, RoundRecord } from "../types";
 
 type CustomStyle = CSSProperties & Record<`--${string}`, string | number>;
 
@@ -44,6 +44,22 @@ export function RoundProgressTracker({ roundsPlayed, roundsPerGame }: { roundsPl
       <div className="round-segments" style={style}>
         {Array.from({ length: roundsPerGame }).map((_, index) => (
           <span className={index < completed ? "complete" : ""} key={index} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function GameModeSelector({ selectedMode, onSelect }: { selectedMode: GameModeId; onSelect: (mode: GameModeId) => void }) {
+  return (
+    <div className="mode-selector" aria-label={CopyText.GameMode}>
+      <span>{CopyText.GameMode}</span>
+      <div className="mode-options">
+        {GAME_MODES.map((mode) => (
+          <button className={mode.id === selectedMode ? "active" : ""} type="button" onClick={() => onSelect(mode.id)} key={mode.id}>
+            <strong>{mode.name}</strong>
+            <em>{mode.label}</em>
+          </button>
         ))}
       </div>
     </div>
@@ -203,7 +219,7 @@ export function ControllerSetupModal({ connection, onClose }: { connection: Conn
           <div className="button-map-card">
             <div className="section-title"><Gamepad2 size={17} /><span>{CopyText.SupportedButtons}</span></div>
             <div className="button-map-grid">
-              {FACE_BUTTONS.map((button) => (
+              {CONTROLLER_BUTTONS.map((button) => (
                 <div className="button-map-item" key={button.id}>
                   <span style={{ "--button-color": button.color } as CustomStyle}>{button.symbol}</span>
                   <strong>{button.name}</strong>

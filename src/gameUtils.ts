@@ -1,6 +1,6 @@
-import { FACE_BUTTONS } from "./constants";
+import { CONTROLLER_BUTTONS } from "./constants";
 import { CopyText, emptyGrade, streakRemarkText } from "./copy";
-import type { FaceButton, ReactionGrade } from "./types";
+import type { ControllerButton, GameMode, ReactionGrade } from "./types";
 
 export function ms(value: number): string {
   return `${Math.round(value)} ms`;
@@ -21,10 +21,14 @@ export function streakRemark(streak: number): string {
   return streakRemarkText(streak);
 }
 
-export function getRandomPrompt(previous: FaceButton | null): FaceButton {
-  let next = FACE_BUTTONS[Math.floor(Math.random() * FACE_BUTTONS.length)];
+export function getButtonsForMode(mode: GameMode): ControllerButton[] {
+  return CONTROLLER_BUTTONS.filter((button) => mode.buttonGroups.includes(button.group));
+}
+
+export function getRandomPrompt(previous: ControllerButton | null, buttons: ControllerButton[]): ControllerButton {
+  let next = buttons[Math.floor(Math.random() * buttons.length)];
   while (previous && next.id === previous.id) {
-    next = FACE_BUTTONS[Math.floor(Math.random() * FACE_BUTTONS.length)];
+    next = buttons[Math.floor(Math.random() * buttons.length)];
   }
   return next;
 }

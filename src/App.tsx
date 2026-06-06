@@ -15,6 +15,7 @@ import { ControllerScene } from './components/ControllerScene';
 import {
   ControllerSetupModal,
   GameHistory,
+  GameModeSelector,
   GameToast,
   InstructionPanel,
   LiveStats,
@@ -22,7 +23,7 @@ import {
   RoundProgressTracker,
   RoundTableModal,
 } from './components/GameUI';
-import { COLORS, FACE_BUTTONS, HISTORY_LIMIT, ROUND_LIMIT } from './constants';
+import { COLORS, CONTROLLER_BUTTONS, GAME_MODES, HISTORY_LIMIT, ROUND_LIMIT } from './constants';
 import {
   CopyText,
   correctButton,
@@ -36,6 +37,7 @@ import {
 } from './copy';
 import {
   getRandomPrompt,
+  getButtonsForMode,
   gradeReaction,
   ms,
   nextDelay,
@@ -45,8 +47,9 @@ import { useGamepad } from './hooks/useGamepad';
 import { useReactionSounds } from './hooks/useReactionSounds';
 import type {
   ConnectionState,
-  FaceButton,
+  ControllerButton,
   GameStateSnapshot,
+  GameModeId,
   GameStatus,
   GameSummary,
   PromptDisplay,
@@ -81,6 +84,7 @@ export function App() {
     label: CopyText.PressAnyControllerButton,
   });
   const [status, setStatus] = useState<GameStatus>('welcome');
+  const [selectedMode, setSelectedMode] = useState<GameModeId>('classic');
   const [roundsPerGame, setRoundsPerGame] = useState(10);
   const [prompt, setPrompt] = useState<PromptDisplay | null>(null);
   const [mode, setMode] = useState<PromptMode>('idle');
@@ -107,7 +111,16 @@ export function App() {
   const reactionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const promptStartedAt = useRef(0);
+  const promptButtonsRef = useRef<ControllerButton[]>([]);
   const sounds = useReactionSounds();
+
+  const activeMode = useMemo(
+    () => GAME_MODES.find((mode) => mode.id === selectedMode) ?? GAME_MODES[0],
+    [selectedMode],
+  );
+  const activeButtons = useMemo(() => getButtonsForMode(activeMode), [activeMode]);
+
+  promptButtonsRef.current = activeButtons;
 
   stateRef.current = {
     status,
@@ -150,11 +163,11 @@ export function App() {
     waitTimer.current = setTimeout(() => {
       const previous =
         stateRef.current.prompt?.id !== undefined
-          ? (FACE_BUTTONS.find(
+          ? (CONTROLLER_BUTTONS.find(
               (button) => button.id === stateRef.current.prompt?.id,
             ) ?? null)
           : null;
-      const current = getRandomPrompt(previous);
+      const current = getRandomPrompt(previous, promptButtonsRef.current);
       promptStartedAt.current = performance.now();
       setPrompt(current);
       setMode('live');
@@ -251,7 +264,7 @@ export function App() {
     );
   }
 
-  function recordFalseStart(button: FaceButton): void {
+  function recordFalseStart(button: ControllerButton): void {
     if (stateRef.current.status !== 'waiting') return;
     clearTimers();
     const nextMisses = stateRef.current.misses + 1;
@@ -272,7 +285,7 @@ export function App() {
     advance(nextRounds, stateRef.current.hits, nextMisses, 0);
   }
 
-  function recordButton(button: FaceButton): void {
+  function recordButton(button: ControllerButton): void {
     const current = stateRef.current;
     if (current.status === 'waiting') {
       recordFalseStart(button);
@@ -317,7 +330,7 @@ export function App() {
     advance(nextRounds, nextHits, nextMisses, nextStreak);
   }
 
-  function recordTimeout(expiredPrompt: FaceButton): void {
+  function recordTimeout(expiredPrompt: ControllerButton): void {
     const current = stateRef.current;
     if (current.status !== 'prompt') return;
     clearTimers();
@@ -350,7 +363,7 @@ export function App() {
     function onKeyDown(event: KeyboardEvent): void {
       if (event.key === 'Enter' && status !== 'prompt' && status !== 'waiting')
         startGame();
-      const button = FACE_BUTTONS.find(
+      const button = CONTROLLER_BUTTONS.find(
         (item) => item.key === event.key.toLowerCase(),
       );
       if (button) recordButton(button);
@@ -438,19 +451,25 @@ export function App() {
             </div>
             <div className='command-deck'>
               {(status === 'welcome' || status === 'complete') && (
-                <label className='round-control'>
-                  <span>{CopyText.RoundsPerGame}</span>
-                  <strong>{roundsPerGame}</strong>
-                  <input
-                    type='range'
-                    min='5'
-                    max='20'
-                    value={roundsPerGame}
-                    onChange={(event) =>
-                      setRoundsPerGame(Number(event.target.value))
-                    }
+                <>
+                  <GameModeSelector
+                    selectedMode={selectedMode}
+                    onSelect={setSelectedMode}
                   />
-                </label>
+                  <label className='round-control'>
+                    <span>{CopyText.RoundsPerGame}</span>
+                    <strong>{roundsPerGame}</strong>
+                    <input
+                      type='range'
+                      min='5'
+                      max='20'
+                      value={roundsPerGame}
+                      onChange={(event) =>
+                        setRoundsPerGame(Number(event.target.value))
+                      }
+                    />
+                  </label>
+                </>
               )}
               <button
                 className='primary'
