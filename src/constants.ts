@@ -1,4 +1,4 @@
-import type { ControllerButton, FaceButton, GameMode } from "./types";
+import type { ControllerButton, ControllerButtonGroup, FaceButton, GameMode } from "./types";
 import { CopyText } from "./copy";
 
 export const COLORS = {
@@ -39,6 +39,13 @@ export const CONTROLLER_BUTTONS: ControllerButton[] = [
   { id: 15, group: "dpad", key: "arrowright", name: CopyText.DpadRight, symbol: "→", alias: CopyText.DpadRight, color: COLORS.dpadRight }
 ];
 
+export const BUTTON_GROUPS: Array<{ id: ControllerButtonGroup; label: string; color: string }> = [
+  { id: "face", label: CopyText.FaceGroup, color: COLORS.cross },
+  { id: "dpad", label: CopyText.DpadGroup, color: COLORS.dpadDown },
+  { id: "shoulder", label: CopyText.ShoulderGroup, color: COLORS.shoulderRight },
+  { id: "trigger", label: CopyText.TriggerGroup, color: COLORS.triggerRight }
+];
+
 export const GAME_MODES: GameMode[] = [
   {
     id: "classic",
@@ -67,6 +74,14 @@ export const GAME_MODES: GameMode[] = [
     label: CopyText.ShoulderTriggerModeLabel,
     description: CopyText.ShoulderTriggerModeDescription,
     buttonGroups: ["shoulder", "trigger"]
+  },
+  {
+    id: "custom",
+    name: CopyText.CustomMode,
+    label: CopyText.CustomModeLabel,
+    description: CopyText.CustomModeDescription,
+    buttonGroups: ["face", "dpad", "shoulder", "trigger"],
+    isCustom: true
   }
 ];
 

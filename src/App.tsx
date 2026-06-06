@@ -16,6 +16,7 @@ import {
   ControllerSetupModal,
   GameHistory,
   GameModeSelector,
+  GroupPerformancePanel,
   GameToast,
   InstructionPanel,
   LiveStats,
@@ -37,7 +38,10 @@ import {
 } from './copy';
 import {
   getRandomPrompt,
+  getBestAndWeakestGroups,
   getButtonsForMode,
+  getButtonsForGroups,
+  getGroupPerformance,
   gradeReaction,
   ms,
   nextDelay,
@@ -48,6 +52,8 @@ import { useReactionSounds } from './hooks/useReactionSounds';
 import type {
   ConnectionState,
   ControllerButton,
+  ControllerButtonGroup,
+  DetectedButton,
   GameStateSnapshot,
   GameModeId,
   GameStatus,
@@ -85,6 +91,12 @@ export function App() {
   });
   const [status, setStatus] = useState<GameStatus>('welcome');
   const [selectedMode, setSelectedMode] = useState<GameModeId>('classic');
+  const [customGroups, setCustomGroups] = useState<ControllerButtonGroup[]>([
+    'face',
+    'dpad',
+    'shoulder',
+    'trigger',
+  ]);
   const [roundsPerGame, setRoundsPerGame] = useState(10);
   const [prompt, setPrompt] = useState<PromptDisplay | null>(null);
   const [mode, setMode] = useState<PromptMode>('idle');
@@ -98,6 +110,7 @@ export function App() {
   const [showInstructions, setShowInstructions] = useState(false);
   const [showRounds, setShowRounds] = useState(false);
   const [showControllerSetup, setShowControllerSetup] = useState(false);
+  const [detectedButtons, setDetectedButtons] = useState<DetectedButton[]>([]);
   const stateRef = useRef<GameStateSnapshot>({
     status,
     prompt,
@@ -118,7 +131,11 @@ export function App() {
     () => GAME_MODES.find((mode) => mode.id === selectedMode) ?? GAME_MODES[0],
     [selectedMode],
   );
-  const activeButtons = useMemo(() => getButtonsForMode(activeMode), [activeMode]);
+  const activeButtonGroups = activeMode.isCustom ? customGroups : activeMode.buttonGroups;
+  const activeButtons = useMemo(
+    () => activeMode.isCustom ? getButtonsForGroups(customGroups) : getButtonsForMode(activeMode),
+    [activeMode, customGroups],
+  );
 
   promptButtonsRef.current = activeButtons;
 
@@ -147,6 +164,21 @@ export function App() {
     };
   }, [rounds]);
 
+  const groupPerformance = useMemo(() => getGroupPerformance(rounds), [rounds]);
+  const groupHighlights = useMemo(
+    () => getBestAndWeakestGroups(groupPerformance),
+    [groupPerformance],
+  );
+
+  function toggleCustomGroup(group: ControllerButtonGroup): void {
+    setCustomGroups((current) => {
+      if (current.includes(group)) {
+        return current.length === 1 ? current : current.filter((item) => item !== group);
+      }
+      return [...current, group];
+    });
+  }
+
   function clearTimers(): void {
     if (waitTimer.current) clearTimeout(waitTimer.current);
     if (reactionTimer.current) clearTimeout(reactionTimer.current);
@@ -154,6 +186,7 @@ export function App() {
   }
 
   function schedulePrompt(): void {
+    if (!promptButtonsRef.current.length) return;
     clearTimers();
     setStatus('waiting');
     setPrompt(null);
@@ -237,7 +270,7 @@ export function App() {
     clearTimers();
     setStatus('complete');
     setMode('complete');
-    setPrompt({ name: CopyText.Complete, symbol: '✓', color: COLORS.success });
+    setPrompt({ name: CopyText.Complete, symbol: '✓', color: COLORS.success, group: 'face' });
     sounds.play('complete');
     const times = finalRounds
       .filter((round) => round.correct)
@@ -271,12 +304,13 @@ export function App() {
     setMisses(nextMisses);
     setStreak(0);
     setMode('warning');
-    setPrompt({ name: CopyText.TooSoon, symbol: '!', color: COLORS.warning });
+    setPrompt({ name: CopyText.TooSoon, symbol: '!', color: COLORS.warning, group: button.group });
     sounds.play('miss');
     setMessage(falseStart(button));
     setCelebration('');
     const nextRounds = appendRound({
       prompt: CopyText.FalseStartPrompt,
+      group: button.group,
       result: missedButton(button),
       correct: false,
       time: null,
@@ -322,6 +356,7 @@ export function App() {
     }
     const nextRounds = appendRound({
       prompt: current.prompt.name,
+      group: current.prompt.group,
       result: correct ? CopyText.Hit : missedButton(button),
       correct,
       time: correct ? elapsed : null,
@@ -343,6 +378,7 @@ export function App() {
     setCelebration('');
     const nextRounds = appendRound({
       prompt: expiredPrompt.name,
+      group: expiredPrompt.group,
       result: CopyText.Timeout,
       correct: false,
       time: null,
@@ -351,7 +387,26 @@ export function App() {
     advance(nextRounds, current.hits, nextMisses, 0);
   }
 
-  useGamepad(recordButton, setConnection);
+  function recordDetectedButton(button: ControllerButton): void {
+    setDetectedButtons((current) => [
+      {
+        id: button.id,
+        name: button.name,
+        group: button.group,
+        symbol: button.symbol,
+        index: button.id,
+        detectedAt: Date.now(),
+      },
+      ...current.filter((item) => item.id !== button.id),
+    ].slice(0, 6));
+  }
+
+  function recordControllerButton(button: ControllerButton): void {
+    recordDetectedButton(button);
+    recordButton(button);
+  }
+
+  useGamepad(recordControllerButton, setConnection);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -453,6 +508,8 @@ export function App() {
               <GameModeSelector
                 selectedMode={selectedMode}
                 onSelect={setSelectedMode}
+                selectedGroups={activeButtonGroups}
+                onToggleGroup={toggleCustomGroup}
                 disabled={status === 'waiting' || status === 'prompt'}
               />
               {(status === 'welcome' || status === 'complete') && (
@@ -501,6 +558,11 @@ export function App() {
               streak={streak}
               round={`${Math.min(rounds.length, roundsPerGame)}/${roundsPerGame}`}
             />
+            <GroupPerformancePanel
+              performance={groupPerformance}
+              best={groupHighlights.best}
+              weakest={groupHighlights.weakest}
+            />
             <GameHistory games={games} />
           </aside>
         </div>
@@ -514,6 +576,7 @@ export function App() {
       {showControllerSetup && (
         <ControllerSetupModal
           connection={connection}
+          detectedButtons={detectedButtons}
           onClose={() => setShowControllerSetup(false)}
         />
       )}

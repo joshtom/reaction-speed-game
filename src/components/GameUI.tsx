@@ -1,14 +1,17 @@
 import { useMemo, type CSSProperties } from 'react';
-import { BookOpen, Gamepad2, Info, Medal, Trophy, X } from 'lucide-react';
+import { Activity, BookOpen, Gamepad2, Info, Medal, Trophy, X } from 'lucide-react';
 import { motionClassNames } from '../animationVocabulary';
 import { CopyText, emptyValue } from '../copy';
-import { CONTROLLER_BUTTONS, GAME_MODES } from '../constants';
-import { ms } from '../gameUtils';
+import { BUTTON_GROUPS, CONTROLLER_BUTTONS, GAME_MODES } from '../constants';
+import { getGroupLabel, ms } from '../gameUtils';
 import type {
   ConnectionState,
+  ControllerButtonGroup,
+  DetectedButton,
   GameModeId,
   GameStatus,
   GameSummary,
+  GroupPerformance,
   LiveStatsValue,
   PromptDisplay,
   PromptMode,
@@ -29,7 +32,7 @@ export function PromptCardOverlay({
 
   return (
     <div
-      className={`prompt-card-3d ${mode} ${motionClassNames.popIn}`}
+      className={`prompt-card-3d ${prompt.group} ${mode} ${motionClassNames.popIn}`}
       style={style}
       key={`${prompt.name}-${mode}`}
     >
@@ -94,12 +97,18 @@ export function RoundProgressTracker({
 export function GameModeSelector({
   selectedMode,
   onSelect,
+  selectedGroups,
+  onToggleGroup,
   disabled,
 }: {
   selectedMode: GameModeId;
   onSelect: (mode: GameModeId) => void;
+  selectedGroups: ControllerButtonGroup[];
+  onToggleGroup: (group: ControllerButtonGroup) => void;
   disabled: boolean;
 }) {
+  const isCustom = selectedMode === 'custom';
+
   return (
     <div className='mode-selector' aria-label={CopyText.GameMode}>
       <div className='mode-options'>
@@ -116,6 +125,27 @@ export function GameModeSelector({
           </button>
         ))}
       </div>
+      {isCustom && (
+        <div className='custom-mix-options' aria-label={CopyText.CustomMix}>
+          {BUTTON_GROUPS.map((group) => {
+            const checked = selectedGroups.includes(group.id);
+            const style: CustomStyle = { '--group-color': group.color };
+            return (
+              <button
+                className={checked ? 'active' : ''}
+                type='button'
+                disabled={disabled || (checked && selectedGroups.length === 1)}
+                onClick={() => onToggleGroup(group.id)}
+                style={style}
+                key={group.id}
+              >
+                <span />
+                {group.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -223,6 +253,46 @@ export function GameHistory({ games }: { games: GameSummary[] }) {
           })}
         </tbody>
       </table>
+    </section>
+  );
+}
+
+export function GroupPerformancePanel({
+  performance,
+  best,
+  weakest,
+}: {
+  performance: GroupPerformance[];
+  best: GroupPerformance | null;
+  weakest: GroupPerformance | null;
+}) {
+  return (
+    <section className={`group-card ${motionClassNames.reveal}`}>
+      <div className='section-title'>
+        <Activity size={17} />
+        <span>{CopyText.GroupReadout}</span>
+      </div>
+      <div className='group-highlights'>
+        <div>
+          <span>{CopyText.BestGroup}</span>
+          <strong>{best ? best.label : CopyText.NeedMoreRounds}</strong>
+        </div>
+        <div>
+          <span>{CopyText.WeakestGroup}</span>
+          <strong>{weakest ? weakest.label : CopyText.NeedMoreRounds}</strong>
+        </div>
+      </div>
+      <div className='group-score-grid'>
+        {performance.map((group) => (
+          <div className='group-score-item' key={group.group}>
+            <span>{group.label}</span>
+            <strong>{group.avg === null ? emptyValue : ms(group.avg)}</strong>
+            <em>
+              {group.hits}/{group.rounds}
+            </em>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }
@@ -361,11 +431,15 @@ export function InstructionPanel({ onClose }: { onClose: () => void }) {
 
 export function ControllerSetupModal({
   connection,
+  detectedButtons,
   onClose,
 }: {
   connection: ConnectionState;
+  detectedButtons: DetectedButton[];
   onClose: () => void;
 }) {
+  const lastDetected = detectedButtons[0] ?? null;
+
   return (
     <div
       className='modal-backdrop'
@@ -415,6 +489,34 @@ export function ControllerSetupModal({
               <span>{CopyText.ControllerStatus}</span>
             </div>
             <p>{CopyText.BrowserGamepadNote}</p>
+          </div>
+          <div className='button-test-card'>
+            <div className='section-title'>
+              <Activity size={17} />
+              <span>{CopyText.ButtonTest}</span>
+            </div>
+            <div className={`detected-button ${lastDetected ? 'active' : ''}`}>
+              <span>{lastDetected ? lastDetected.symbol : '...'}</span>
+              <div>
+                <strong>
+                  {lastDetected ? lastDetected.name : CopyText.NoButtonDetected}
+                </strong>
+                <em>
+                  {lastDetected
+                    ? `${getGroupLabel(lastDetected.group)} · ${CopyText.BrowserIndex} ${lastDetected.index}`
+                    : CopyText.ButtonTestIdle}
+                </em>
+              </div>
+            </div>
+            {!!detectedButtons.length && (
+              <div className='detected-history'>
+                {detectedButtons.map((button) => (
+                  <span key={`${button.id}-${button.detectedAt}`}>
+                    {button.name}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
           <div className='button-map-card'>
             <div className='section-title'>
