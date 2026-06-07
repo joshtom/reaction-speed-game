@@ -552,7 +552,9 @@ input[type="range"] {
   gap: 12px;
   align-content: start;
   min-height: 0;
-  overflow: auto;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .table-card,
@@ -566,6 +568,18 @@ input[type="range"] {
 .group-card,
 .table-card {
   padding: 14px;
+}
+
+.table-card {
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.group-card,
+.stats-grid {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .section-title {
@@ -584,6 +598,7 @@ input[type="range"] {
 }
 
 .stat-tile {
+  min-width: 0;
   min-height: 76px;
   padding: 13px;
   background: var(--surface-faint);
@@ -602,8 +617,10 @@ input[type="range"] {
 .stat-tile strong {
   display: block;
   margin-top: 8px;
+  overflow: hidden;
   font-size: clamp(1.2rem, 2.2vw, 1.8rem);
   line-height: 1;
+  text-overflow: ellipsis;
 }
 
 .group-highlights {
@@ -659,8 +676,10 @@ input[type="range"] {
 }
 
 .group-score-item strong {
+  overflow: hidden;
   font-size: 0.82rem;
   font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
 }
 
 .group-score-item em {
@@ -669,6 +688,7 @@ input[type="range"] {
 
 table {
   width: 100%;
+  min-width: 520px;
   margin-top: 10px;
   border-collapse: collapse;
   font-size: 0.83rem;
