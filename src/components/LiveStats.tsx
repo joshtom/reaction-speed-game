@@ -31,9 +31,10 @@ export function LiveStats({
     <section className={`stats-grid ${motionClassNames.stagger}`}>
       {items.map(([label, value], index) => {
         const style: CustomStyle = { '--stagger-index': index };
+        const isRound = label === CopyText.Round;
         return (
           <div
-            className={`stat-tile ${motionClassNames.numberTicker}`}
+            className={`stat-tile ${isRound ? 'round-stat' : ''} ${motionClassNames.numberTicker}`}
             style={style}
             key={label}
           >
