@@ -1,6 +1,6 @@
 import { BUTTON_GROUPS, CONTROLLER_BUTTONS } from "./constants";
 import { CopyText, emptyGrade, streakRemarkText } from "./copy";
-import type { ControllerButton, ControllerButtonGroup, GameMode, GroupPerformance, ReactionGrade, RoundRecord } from "./types";
+import type { ControllerButton, ControllerButtonGroup, GameMode, GroupPerformance, ReactionGrade, RoundRecord, SoundCue } from "./types";
 
 export function ms(value: number): string {
   return `${Math.round(value)} ms`;
@@ -11,6 +11,12 @@ export function gradeReaction(value: number | null): ReactionGrade {
   if (value < 220) return CopyText.Fast;
   if (value < 400) return CopyText.Good;
   return CopyText.Slow;
+}
+
+export function soundCueForGrade(grade: ReactionGrade): SoundCue {
+  if (grade === CopyText.Fast) return "fast";
+  if (grade === CopyText.Good) return "good";
+  return "slow";
 }
 
 export function nextDelay(): number {

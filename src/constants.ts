@@ -1,4 +1,4 @@
-import type { ControllerButton, ControllerButtonGroup, FaceButton, GameMode } from "./types";
+import type { ControllerButton, ControllerButtonGroup, FaceButton, GameMode, UserPreferences } from "./types";
 import { CopyText } from "./copy";
 
 export const COLORS = {
@@ -87,3 +87,19 @@ export const GAME_MODES: GameMode[] = [
 
 export const ROUND_LIMIT = 2500;
 export const HISTORY_LIMIT = 3;
+export const THEME_STORAGE_KEY = "triggr-theme";
+export const LEGACY_THEME_STORAGE_KEY = "triggerlab-theme";
+export const PREFERENCES_STORAGE_KEY = "triggr-preferences";
+export const DEFAULT_CUSTOM_GROUPS: ControllerButtonGroup[] = [
+  "face",
+  "dpad",
+  "shoulder",
+  "trigger"
+];
+export const DEFAULT_PREFERENCES: UserPreferences = {
+  mode: "classic",
+  rounds: 10,
+  sound: true,
+  theme: "dark",
+  customGroups: DEFAULT_CUSTOM_GROUPS
+};
