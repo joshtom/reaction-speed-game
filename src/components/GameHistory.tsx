@@ -21,58 +21,60 @@ export function GameHistory({ games }: { games: GameSummary[] }) {
   const medalClass = ['gold', 'silver', 'bronze'];
 
   return (
-    <section className={`table-card ${motionClassNames.reveal}`}>
+    <section className={`history-card ${motionClassNames.reveal}`}>
       <div className='section-title'>
         <Medal size={17} />
         <span>{CopyText.LastGames}</span>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>{CopyText.Rank}</th>
-            <th>{CopyText.ModeName}</th>
-            <th>{CopyText.Accuracy}</th>
-            <th>{CopyText.Avg}</th>
-            <th>{CopyText.Best}</th>
-            <th>{CopyText.Miss}</th>
-            <th>{CopyText.Rounds}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {!games.length && (
-            <tr>
-              <td colSpan={7} className='empty-cell'>
-                {CopyText.FinishGameToRank}
-              </td>
-            </tr>
-          )}
+      {!games.length && (
+        <div className='empty-cell'>{CopyText.FinishGameToRank}</div>
+      )}
+      {!!games.length && (
+        <div className='history-list'>
           {games.map((game) => {
             const rank = ranked.indexOf(game.id);
             return (
-              <tr key={game.id}>
-                <td>
+              <article className='history-row' key={game.id}>
+                <div className='history-summary'>
                   {rank >= 0 ? (
                     <span className={`medal-dot ${medalClass[rank]}`}>
                       {rank + 1}
                     </span>
                   ) : (
-                    emptyValue
+                    <span className='history-rank'>{emptyValue}</span>
                   )}
-                </td>
-                <td>
-                  <span className='history-mode'>{game.mode}</span>
-                  <em>{game.groups.join(', ')}</em>
-                </td>
-                <td>{Math.round(game.accuracy * 100)}%</td>
-                <td>{game.avg === null ? emptyValue : ms(game.avg)}</td>
-                <td>{game.best === null ? emptyValue : ms(game.best)}</td>
-                <td>{game.misses}</td>
-                <td>{game.rounds}</td>
-              </tr>
+                  <div>
+                    <strong>{game.mode}</strong>
+                    <em>{game.groups.join(', ')}</em>
+                  </div>
+                </div>
+                <div className='history-metrics'>
+                  <span>
+                    {CopyText.Accuracy}
+                    <strong>{Math.round(game.accuracy * 100)}%</strong>
+                  </span>
+                  <span>
+                    {CopyText.Avg}
+                    <strong>{game.avg === null ? emptyValue : ms(game.avg)}</strong>
+                  </span>
+                  <span>
+                    {CopyText.Best}
+                    <strong>{game.best === null ? emptyValue : ms(game.best)}</strong>
+                  </span>
+                  <span>
+                    {CopyText.Miss}
+                    <strong>{game.misses}</strong>
+                  </span>
+                  <span>
+                    {CopyText.Rounds}
+                    <strong>{game.rounds}</strong>
+                  </span>
+                </div>
+              </article>
             );
           })}
-        </tbody>
-      </table>
+        </div>
+      )}
     </section>
   );
 }

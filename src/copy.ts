@@ -73,7 +73,7 @@ export enum CopyText {
   Hits = "Hits",
   Misses = "Misses",
   Round = "Round",
-  LastGames = "Last 8 games",
+  LastGames = "Last 3 games",
   Rank = "Rank",
   ModeName = "Mode",
   Groups = "Groups",

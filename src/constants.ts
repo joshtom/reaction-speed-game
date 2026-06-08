@@ -86,4 +86,4 @@ export const GAME_MODES: GameMode[] = [
 ];
 
 export const ROUND_LIMIT = 2500;
-export const HISTORY_LIMIT = 8;
+export const HISTORY_LIMIT = 3;
