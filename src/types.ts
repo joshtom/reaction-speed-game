@@ -1,12 +1,29 @@
-export type FaceButtonId = 0 | 1 | 2 | 3;
+export type ControllerButtonId = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 12 | 13 | 14 | 15;
+export type ControllerButtonGroup = "face" | "shoulder" | "trigger" | "dpad";
+export type GameModeId = "classic" | "full-pad" | "dpad-drill" | "shoulder-trigger" | "custom";
 
-export type FaceButton = {
-  id: FaceButtonId;
+export type ControllerButton = {
+  id: ControllerButtonId;
+  group: ControllerButtonGroup;
   key: string;
   name: string;
   symbol: string;
   alias: string;
   color: string;
+};
+
+export type FaceButton = ControllerButton & {
+  id: 0 | 1 | 2 | 3;
+  group: "face";
+};
+
+export type GameMode = {
+  id: GameModeId;
+  name: string;
+  label: string;
+  description: string;
+  buttonGroups: ControllerButtonGroup[];
+  isCustom?: boolean;
 };
 
 export type GameStatus = "welcome" | "waiting" | "prompt" | "complete";
@@ -15,15 +32,35 @@ export type ReactionGrade = "Fast" | "Good" | "Slow" | "--";
 export type Theme = "dark" | "light";
 export type SoundCue = "prompt" | "fast" | "good" | "slow" | "miss" | "streak" | "complete";
 
-export type PromptDisplay = Pick<FaceButton, "name" | "symbol" | "color"> & Partial<Pick<FaceButton, "id" | "alias">>;
+export type PromptDisplay = Pick<ControllerButton, "name" | "symbol" | "color" | "group"> & Partial<Pick<ControllerButton, "id" | "alias">>;
 
 export type RoundRecord = {
   number: number;
   prompt: string;
+  group: ControllerButtonGroup;
   result: string;
   correct: boolean;
   time: number | null;
   grade: ReactionGrade;
+};
+
+export type GroupPerformance = {
+  group: ControllerButtonGroup;
+  label: string;
+  rounds: number;
+  hits: number;
+  misses: number;
+  avg: number | null;
+  best: number | null;
+};
+
+export type DetectedButton = {
+  id: ControllerButtonId;
+  name: string;
+  group: ControllerButtonGroup;
+  symbol: string;
+  index: number;
+  detectedAt: number;
 };
 
 export type GameSummary = {
@@ -33,7 +70,18 @@ export type GameSummary = {
   misses: number;
   rounds: number;
   hits: number;
+  mode: string;
+  groups: string[];
+  accuracy: number;
   createdAt: string;
+};
+
+export type UserPreferences = {
+  mode: GameModeId;
+  rounds: number;
+  sound: boolean;
+  theme: Theme;
+  customGroups: ControllerButtonGroup[];
 };
 
 export type ConnectionState = {
