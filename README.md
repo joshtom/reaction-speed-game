@@ -4,10 +4,6 @@ Triggr is a controller-first reaction speed game built with TanStack React, Reac
 
 [Play Triggr](https://triggr-reaction.vercel.app/)
 
-![Triggr app screenshot](public/images/app-ss.png)
-
-## Screenshots
-
 ### Main Arena
 
 ![Triggr main arena](public/images/app-ss.png)
@@ -107,29 +103,29 @@ npm run typecheck
 
 Triggr follows the standard browser gamepad mapping:
 
-| Browser button index | Prompt |
-| -------------------- | ------ |
-| `0`                  | Cross |
-| `1`                  | Circle |
-| `2`                  | Square |
-| `3`                  | Triangle |
-| `4`                  | L1 |
-| `5`                  | R1 |
-| `6`                  | L2 |
-| `7`                  | R2 |
-| `12`                 | D-pad Up |
-| `13`                 | D-pad Down |
-| `14`                 | D-pad Left |
+| Browser button index | Prompt      |
+| -------------------- | ----------- |
+| `0`                  | Cross       |
+| `1`                  | Circle      |
+| `2`                  | Square      |
+| `3`                  | Triangle    |
+| `4`                  | L1          |
+| `5`                  | R1          |
+| `6`                  | L2          |
+| `7`                  | R2          |
+| `12`                 | D-pad Up    |
+| `13`                 | D-pad Down  |
+| `14`                 | D-pad Left  |
 | `15`                 | D-pad Right |
 
 Keyboard fallback:
 
-| Group | Keys |
-| ----- | ---- |
-| Face | `X`, `O`, `S`, `T` |
-| Shoulder | `Q`, `E` |
-| Trigger | `A`, `D` |
-| D-pad | Arrow keys |
+| Group    | Keys               |
+| -------- | ------------------ |
+| Face     | `X`, `O`, `S`, `T` |
+| Shoulder | `Q`, `E`           |
+| Trigger  | `A`, `D`           |
+| D-pad    | Arrow keys         |
 
 ## Project Structure
 
