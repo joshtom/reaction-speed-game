@@ -1204,12 +1204,12 @@ th {
   .topbar-actions {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(3, 42px);
-    justify-content: start;
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+    justify-content: stretch;
   }
 
   .connection-pill {
-    grid-column: 1 / -1;
+    grid-column: 1 / 10;
     width: 100%;
     justify-content: flex-start;
   }
