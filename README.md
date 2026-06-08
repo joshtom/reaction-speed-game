@@ -27,24 +27,6 @@ Triggr is a controller-first reaction speed game built with TanStack React, Reac
 - Centralized UI copy in `src/copy.ts`
 - Reusable design tokens in `src/styles.css` and typed 3D/game constants in `src/constants.ts`
 
-## Version Roadmap
-
-### V1: Current Release
-
-Triggr V1 is a polished single-player reaction arena with controller-first gameplay, expanded button support, mode selection, custom group drills, controller diagnostics, keyboard fallback, persisted preferences, and responsive 3D UI polish.
-
-### V2: Next Improvements
-
-V2 can focus on deeper training and controller confidence:
-
-- Saved controller mapping profiles for devices that report non-standard button layouts
-- Richer post-run review with per-button trends and session history
-- Difficulty presets for timeout windows and delay ranges
-- Training goals, personal bests, and streak challenges
-- Optional share cards for completed runs
-
-Analog stick prompts are still best reserved for a later V3 because they need axis thresholds, dead-zone tuning, and a different prompt language than button presses.
-
 ## Tech Stack
 
 - Vite
