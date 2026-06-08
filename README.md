@@ -6,6 +6,28 @@ Triggr is a controller-first reaction speed game built with TanStack React, Reac
 
 ![Triggr app screenshot](public/images/app-ss.png)
 
+## Screenshots
+
+### Main Arena
+
+![Triggr main arena](public/images/app-ss.png)
+
+### Full Gameplay
+
+![Triggr full gameplay](public/images/full-gameplay-ss.png)
+
+### Controller Setup
+
+![Triggr controller setup modal](public/images/controller-setup-ss.png)
+
+### Current Run
+
+![Triggr current run modal](public/images/current-run-ss.png)
+
+### Instructions
+
+![Triggr instructions modal](public/images/instruction-ss.png)
+
 ## Features
 
 - 3D floating controller scene using `public/models/dualshock.glb`
@@ -141,7 +163,11 @@ src/
 skills/
   animation-vocabulary.md        Motion glossary used by the UI
 public/
-  images/app-ss.png              README and social preview screenshot
+  images/app-ss.png              Main arena screenshot
+  images/controller-setup-ss.png Controller setup screenshot
+  images/current-run-ss.png      Current run screenshot
+  images/full-gameplay-ss.png    Gameplay screenshot
+  images/instruction-ss.png      Instructions screenshot
   models/dualshock.glb           Active controller model
 ```
 
